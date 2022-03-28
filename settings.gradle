@@ -1,0 +1,2 @@
+rootProject.name = "BTBook"
+include ':app'

@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">BTBook</string>
+
+    <string name="contact_recents">Recents</string>
+    <string name="contact_contacts">Contacts</string>
+    <string name="contact_messages">Messages</string>
+    <string name="contact_keypad">Keypad</string>
+</resources>

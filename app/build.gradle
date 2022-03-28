@@ -1,0 +1,68 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'com.android.application'
+}
+
+SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+simpleDateFormat.setTimeZone(TimeZone.getTimeZone("UTC+08:00"))
+
+Date date = new Date();
+String datetime = simpleDateFormat.format(date);
+def bookBuild = "_" + datetime
+def versionString = "1.0.1"
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "30.0.2"
+
+    defaultConfig {
+        applicationId "com.ev.bluetooth.BTBookApplication"
+        minSdkVersion 26
+        targetSdkVersion 29
+        versionCode 1
+        //versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.outputs.all{
+            outputFileName = "BT_Book_${versionString}${bookBuild}_${variant.buildType.name}.apk"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets {
+        main {
+            java {
+                srcDirs 'src\\main\\java', 'src\\main\\java\\android.bluetooth'
+            }
+        }
+    }
+}
+
+dependencies {
+    //compileOnly files('libs/framework.jar')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+
+    implementation 'com.belerweb:pinyin4j:2.5.1'
+}

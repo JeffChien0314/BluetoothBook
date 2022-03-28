@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.ev.bluetooth.phonebook">
+    <!-- android:sharedUserId="android.uid.system"> -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <!-- 设置蓝牙访问权限 -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_PRIVILEGED" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 读联系人权限 -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" /> <!-- 写联系人权限 -->
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" /> <!-- 拨号权限 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" /> <!-- 读短信权限 -->
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <application
+        android:name=".BTBookApplication"
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppCompat_AppTheme">
+        <activity
+            android:name=".ui.PhoneBookActivity"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            android:theme="@style/AppCompat_AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.BluetoothMapService"
+            android:enabled="true"
+            android:exported="true" />
+
+        <!--<activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>-->
+
+        <service android:name=".service.BluetoothRecentsService" />
+        <service android:name=".service.BluetoothContactsService" />
+
+        <receiver
+            android:name=".receiver.BluetoothReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.SDP_RECORD" />
+                <action android:name="android.bluetooth.device.action.FOUND" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.BOND_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+    </application>
+
+</manifest>
