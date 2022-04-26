@@ -24,12 +24,8 @@ import com.android.vcard.exception.VCardException;
 import com.android.vcard.exception.VCardInvalidCommentLineException;
 import com.android.vcard.exception.VCardInvalidLineException;
 import com.android.vcard.exception.VCardVersionException;
-import com.ev.bluetooth.phonebook.BTBookApplication;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

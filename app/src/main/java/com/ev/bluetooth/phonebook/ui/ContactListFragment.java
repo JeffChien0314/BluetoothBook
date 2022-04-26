@@ -15,7 +15,6 @@ import android.widget.ListView;
 import com.android.vcard.VCardEntry;
 import com.ev.bluetooth.phonebook.R;
 import com.ev.bluetooth.phonebook.adapter.ContactsAdapter;
-import com.ev.bluetooth.phonebook.constants.Constants;
 import com.ev.bluetooth.phonebook.utils.LogUtils;
 import com.ev.bluetooth.phonebook.view.LetterListView;
 

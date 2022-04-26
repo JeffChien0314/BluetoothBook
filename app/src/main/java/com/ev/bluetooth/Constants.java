@@ -1,8 +1,9 @@
-package com.ev.bluetooth.phonebook.constants;
+package com.ev.bluetooth;
 
 public class Constants {
     public static final boolean IS_DEBUG = false;
     public static final String PBAP_RECENTS_READY = "pbap_recents_ready";
+    public static final String PBAP_RECENTS_FAILED = "pbap_recents_failed";
     public static final String PBAP_CONTACTS_READY = "pbap_contacts_ready";
 
     public static final int PBAP_CONTACTS_MAX_COUNT = 0;//0为不限制

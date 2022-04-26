@@ -12,9 +12,9 @@ import android.os.IBinder;
 import android.os.Message;
 
 import com.android.vcard.VCardEntry;
-import com.ev.bluetooth.phonebook.BTBookApplication;
+import com.ev.bluetooth.btManager.BtManager;
 import com.ev.bluetooth.phonebook.connectthread.PbapConnectThread;
-import com.ev.bluetooth.phonebook.constants.Constants;
+import com.ev.bluetooth.Constants;
 import com.ev.bluetooth.phonebook.constants.PbapClientConstants;
 import com.ev.bluetooth.phonebook.utils.LogUtils;
 import com.ev.bluetooth.phonebook.utils.PbapClientUtils;
@@ -37,12 +37,12 @@ public class BluetoothContactsService extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtils.i(TAG, " onCreate ");
-
+        mContext = this;
         if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BTBookApplication.getInstance().mBluetoothAdapter;
+            mBluetoothAdapter = BtManager.getInstance(mContext).mBluetoothAdapter;
         }
 
-        mContext = this;
+
     }
 
     @Override
@@ -69,16 +69,17 @@ public class BluetoothContactsService extends Service {
         super.onDestroy();
     }
 
-    public void setRequestPbapPath(String path){
+    public void setRequestPbapPath(String path) {
         this.path = path;
     }
 
-    public List<VCardEntry> getVCardEntryList(){
+    public List<VCardEntry> getVCardEntryList() {
         return vCardEntryList;
     }
 
-    public void connectPbapClient(String address) {
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+    public boolean connectPbapClient() {
+        BluetoothDevice device = BtManager.getInstance(mContext).getConnectedDevice();
+        if (null == device) return false;//无连接设备
         LogUtils.i(TAG, "mPbapClient=" + mPbapClient);
         if (mPbapClient != null) {
             mPbapClient.disconnect();
@@ -95,6 +96,7 @@ public class BluetoothContactsService extends Service {
                 LogUtils.i(TAG, mPbapClient.getState().toString());
             }
         }
+        return true;
     }
 
     private class BluetoothServiceHandler extends Handler {
@@ -108,10 +110,10 @@ public class BluetoothContactsService extends Service {
                     //LogUtils.i(TAG, "BluetoothServiceHandler-msg.obj:" + msg.toString());
                     vCardEntryList = (List<VCardEntry>) msg.obj;
                     sendBroadcast(new Intent(Constants.PBAP_CONTACTS_READY));
-                    for(VCardEntry vCardEntry:vCardEntryList){
+                    for (VCardEntry vCardEntry : vCardEntryList) {
                         //LogUtils.i(TAG, "vCardEntry:\n" + vCardEntry.toString());
-                        if(vCardEntry.getPhoneList()!=null && vCardEntry.getPhoneList().size()>0) {
-                            LogUtils.i(TAG, "PhoneList:" +vCardEntry.getPhoneList().size()+",***"+ vCardEntry.getPhoneList().get(0).getNumber());
+                        if (vCardEntry.getPhoneList() != null && vCardEntry.getPhoneList().size() > 0) {
+                            LogUtils.i(TAG, "PhoneList:" + vCardEntry.getPhoneList().size() + ",***" + vCardEntry.getPhoneList().get(0).getNumber());
                         }
                     }
                     mPbapClient.disconnect();
@@ -122,7 +124,7 @@ public class BluetoothContactsService extends Service {
                     LogUtils.i(TAG, "EVENT_SESSION_CONNECTED");
                     if (PbapClientUtils.getConnectState(mPbapClient)) {
                         LogUtils.i(TAG, "pulling the PhoneBook, it may take a long time ! ");
-                        PbapClientUtils.pullPhonebook(mPbapClient, PbapClientConstants.PB_PATH,Constants.PBAP_CONTACTS_MAX_COUNT);
+                        PbapClientUtils.pullPhonebook(mPbapClient, PbapClientConstants.PB_PATH, Constants.PBAP_CONTACTS_MAX_COUNT);
                     }
                 }
                 break;

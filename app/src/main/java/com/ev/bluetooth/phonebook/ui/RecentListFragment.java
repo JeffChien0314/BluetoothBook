@@ -1,34 +1,33 @@
 package com.ev.bluetooth.phonebook.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+
+import com.ev.bluetooth.phonebook.R;
+import com.ev.bluetooth.phonebook.adapter.RecentsAdapter;
+import com.ev.bluetooth.btManager.BtManager;
+import com.ev.bluetooth.Constants;
+import com.ev.bluetooth.telecom.ui.calllog.CallHistoryViewModel;
+import com.ev.bluetooth.telecom.ui.common.entity.UiCallLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.android.vcard.VCardEntry;
-import com.ev.bluetooth.phonebook.R;
-import com.ev.bluetooth.phonebook.adapter.RecentsAdapter;
-import com.ev.bluetooth.phonebook.constants.Constants;
-import com.ev.bluetooth.phonebook.utils.LogUtils;
-
-import java.util.ArrayList;
-import java.util.List;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class RecentListFragment extends Fragment {
     private static final String TAG = RecentListFragment.class.getSimpleName();
     private View view;
-    private ListView recentListView;
+    private RecyclerView recentListView;
     private RecentsAdapter adapter;
-    private static List<VCardEntry> vCardEntryList;
 
-    public static RecentListFragment newInstance(List<VCardEntry> vCardEntryList) {
+    public static RecentListFragment newInstance() {
         RecentListFragment recentListFragment = new RecentListFragment();
-        RecentListFragment.vCardEntryList = vCardEntryList;
         return recentListFragment;
     }
 
@@ -37,23 +36,56 @@ public class RecentListFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.recent_list_fragment, container, false);
         recentListView = view.findViewById(R.id.recents_list);
-
         initData();
         addListener();
         return view;
     }
 
     private void initData() {
-        adapter = new RecentsAdapter(getActivity(),vCardEntryList);
+        adapter = new RecentsAdapter(getActivity());
         recentListView.setAdapter(adapter);
+        adapter.setRecyclerView(recentListView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        recentListView.setLayoutManager(layoutManager);
+        if (!Constants.IS_DEBUG) {
+            CallHistoryViewModel viewModel = ViewModelProviders.of(this).get(
+                    CallHistoryViewModel.class);
+            viewModel.getCallHistory().observe(getActivity(), adapter::setUiCallLogs);
+        }
     }
 
     private void addListener() {
         adapter.setOnRecentItemClickListener(new RecentsAdapter.OnRecentItemClickListener() {
             @Override
             public void onRecentItemClick(int position) {
-                LogUtils.i(TAG,"Name:"+vCardEntryList.get(position).getNameData().getGiven()+",Telephone:"+vCardEntryList.get(position).getPhoneList().get(0).getNumber());
+                Log.i(TAG, "onRecentItemClick: ");
+//                LogUtils.i(TAG, "Name:" + vCardEntryList.get(position).getNameData().getGiven() + ",Telephone:" + vCardEntryList.get(position).getPhoneList().get(0).getNumber());
+                try {
+                    String phoneNumber = (((UiCallLog) adapter.getItem(position)).getNumber()).replace("-", "");
+
+                    //调用拨号器拨打电话号码
+                  /*  Uri uri= Uri.parse("tel:"+phoneNumber);
+                    Intent intent=new Intent(Intent.ACTION_DIAL,uri);
+                    startActivity(intent);
+                    */
+                    BtManager.getInstance(getActivity()).connectAudio(phoneNumber);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //
             }
+
+            @Override
+            public void onMsgBtnClick(int position) {
+                Log.i(TAG, "onMsgBtnClick: position=" + position);
+
+            }
+
+            @Override
+            public void onDelBtnClick(int position) {
+                Log.i(TAG, "onDelBtnClick: position=" + position);
+            }
+
         });
     }
 

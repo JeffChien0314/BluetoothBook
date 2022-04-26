@@ -8,19 +8,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import android.widget.Toast;
 
 import com.android.vcard.VCardEntry;
-import com.ev.bluetooth.phonebook.BTBookApplication;
 import com.ev.bluetooth.phonebook.R;
-import com.ev.bluetooth.phonebook.constants.Constants;
+import com.ev.bluetooth.Constants;
 import com.ev.bluetooth.phonebook.service.BluetoothContactsService;
 import com.ev.bluetooth.phonebook.service.BluetoothRecentsService;
 import com.ev.bluetooth.phonebook.utils.LogUtils;
@@ -29,6 +28,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+import static android.security.KeyStore.getApplicationContext;
 
 public class TabCategoryView implements View.OnClickListener, View.OnFocusChangeListener {
     private static final String TAG = TabCategoryView.class.getSimpleName();
@@ -39,7 +46,33 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     private List<VCardEntry> vCardEntryList;
     private static final String fragmentTag = "FragmentTag";
     private Dialog dialog;
-    private HashMap<String,List<VCardEntry>> listHashMap = new HashMap<>();
+    private HashMap<String, List<VCardEntry>> listHashMap = new HashMap<>();
+    private final int MESSAGE_SHOWDIALOG = 0;
+    private final int MESSAGE_HIDEDIALOG = 1;
+    private final int MESSAGE_SHOWRECENTLIST = 2;
+    private final int MESSAGE_SHOWCONTACTLIST = 3;
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case MESSAGE_SHOWDIALOG:
+                    showProcessDialog();
+                    sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, 10 * 1000);
+                    break;
+                case MESSAGE_HIDEDIALOG:
+                    hideProcessDialog();
+                    break;
+                case MESSAGE_SHOWRECENTLIST:
+                    showRecentsList();
+                    break;
+                case MESSAGE_SHOWCONTACTLIST:
+                    showContactsList();
+                    break;
+            }
+        }
+    };
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
@@ -49,28 +82,54 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             switch (action) {
                 case Constants.PBAP_RECENTS_READY:
                     vCardEntryList = mRecentsService.getVCardEntryList();
-                    listHashMap.put("RECENTS",vCardEntryList);
-                    showRecentsList();
-                    hideProcessDialog();
+                    listHashMap.put("RECENTS", vCardEntryList);
+                    mHandler.sendEmptyMessage(MESSAGE_SHOWRECENTLIST);
+                    mHandler.sendEmptyMessage(MESSAGE_HIDEDIALOG);
                     break;
                 case Constants.PBAP_CONTACTS_READY:
                     vCardEntryList = mContactsService.getVCardEntryList();
-                    listHashMap.put("CONTACTS",vCardEntryList);
-                    showContactsList();
-                    hideProcessDialog();
+                    listHashMap.put("CONTACTS", vCardEntryList);
+                    mHandler.sendEmptyMessage(MESSAGE_SHOWCONTACTLIST);
+                    mHandler.sendEmptyMessage(MESSAGE_HIDEDIALOG);
+                    break;
+                case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
+                    Toast.makeText(getApplicationContext(), "received", Toast.LENGTH_SHORT);
+                    // TelephoneManager.ACTION_PHONE_STATE_CHANGED
+                    String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
+                    String inNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);// 来电号码
+                    Log.i(TAG, "onReceive: inNumber=" + inNumber);
+                    if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_RINGING)) {// 电话正在响铃
+                        Toast.makeText(context, "动态广播，电话正在振铃", Toast.LENGTH_SHORT).show();
+                    } else if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_IDLE)) {// 挂断
+                        Toast.makeText(context, "动态广播，电话已挂断", Toast.LENGTH_SHORT).show();
+                    } else if (state.equalsIgnoreCase(TelephonyManager.EXTRA_STATE_OFFHOOK)) {// 摘机，通话状态
+                        Toast.makeText(context, "动态广播，电话正在通话", Toast.LENGTH_SHORT).show();
+                    } else
+                        Toast.makeText(getApplicationContext(), "动态广播，通话状态改变，没有TelephonyManager.EXTRA_STATE", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
     };
 
+    public static final long SECOND_IN_MILLIS = 1000;
+    public static final long MINUTE_IN_MILLIS = SECOND_IN_MILLIS * 60;
+    public static final long HOUR_IN_MILLIS = MINUTE_IN_MILLIS * 60;
+    public static final long DAY_IN_MILLIS = HOUR_IN_MILLIS * 24;
+    public static final long WEEK_IN_MILLIS = DAY_IN_MILLIS * 7;
     public TabCategoryView(AppCompatActivity mActivity) {
+     /*   Log.i(TAG, "TabCategoryView: getRelativeTime(1650628074000L)=" + getRelativeTime(1650507974000L));
+        Log.i(TAG, "TabCategoryView: getString2Date=" + EVDateUtils.getInstance(mActivity).getDate2String(1650507974000L, "yyyy/MM/dd HH:mm:ss"));
+        Log.i(TAG, "TabCategoryView: DateUtils.isToday(1650507974000L)=" + DateUtils.isToday(1650690027767L));
+        Log.i(TAG, "TabCategoryView:  EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(System.currentTimeMillis()))" +  EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(1650628084000L-WEEK_IN_MILLIS)));
+       // EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(System.currentTimeMillis()));
+*/
         this.mActivity = mActivity;
-
         initLeftView();
         requestRecentsData();
         setListener();
-        if(Constants.IS_DEBUG) showRecentsList();
+        if (Constants.IS_DEBUG) showRecentsList();
     }
+
 
     private void initLeftView() {
         mRecents = mActivity.findViewById(R.id.recents);
@@ -103,15 +162,18 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     }
 
     private void requestRecentsData() {
-        if(Constants.IS_DEBUG) return;
+        if (Constants.IS_DEBUG) return;
+      //  getDataList();
         Intent serviceIntent = new Intent(mActivity, BluetoothRecentsService.class);
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LogUtils.d(TAG, "BluetoothRecentsService, init the Service");
                 mRecentsService = ((BluetoothRecentsService.BluetoothServiceBinder) service).getService();
-                mRecentsService.connectPbapClient(BTBookApplication.deviceMac);
-                showProcessDialog();
+
+                if (mRecentsService.connectPbapClient()) {
+                    mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
+                }
             }
 
             @Override
@@ -123,15 +185,17 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     }
 
     private void requestContactsData() {
-        if(Constants.IS_DEBUG) return;
+        if (Constants.IS_DEBUG) return;
         Intent serviceIntent = new Intent(mActivity, BluetoothContactsService.class);
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 LogUtils.d(TAG, "BluetoothContactsService, init the Service");
                 mContactsService = ((BluetoothContactsService.BluetoothServiceBinder) service).getService();
-                mContactsService.connectPbapClient(BTBookApplication.deviceMac);
-                showProcessDialog();
+                if (mContactsService.connectPbapClient()) {
+                    mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
+                }
+
             }
 
             @Override
@@ -146,6 +210,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.PBAP_RECENTS_READY);
         filter.addAction(Constants.PBAP_CONTACTS_READY);
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
         mActivity.registerReceiver(broadcastReceiver, filter);
     }
 
@@ -199,10 +264,10 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                 clearSelectedView();
                 mRecents.setSelected(true);
                 hideFragment();
-                if(listHashMap.containsKey("RECENTS")){
+                if (listHashMap.containsKey("RECENTS")) {
                     vCardEntryList = listHashMap.get("RECENTS");
                     showRecentsList();
-                }else{
+                } else {
                     requestRecentsData();
                 }
                 break;
@@ -210,10 +275,10 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                 clearSelectedView();
                 mContacts.setSelected(true);
                 hideFragment();
-                if(listHashMap.containsKey("CONTACTS")){
+                if (listHashMap.containsKey("CONTACTS")) {
                     vCardEntryList = listHashMap.get("CONTACTS");
                     showContactsList();
-                }else{
+                } else {
                     requestContactsData();
                 }
                 break;
@@ -231,7 +296,8 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     }
 
     private void showRecentsList() {
-        if(Constants.IS_DEBUG) {
+
+        if (Constants.IS_DEBUG) {
             vCardEntryList = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
                 VCardEntry vCardEntry = new VCardEntry();
@@ -273,7 +339,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         FragmentManager fManager = mActivity.getSupportFragmentManager();
         FragmentTransaction fTransaction = fManager.beginTransaction();
         Fragment fragment = fManager.findFragmentByTag(fragmentTag);
-        RecentListFragment recentListFragment = RecentListFragment.newInstance(vCardEntryList);
+        RecentListFragment recentListFragment = RecentListFragment.newInstance( );
         if (fragment == null) {
             fTransaction.add(R.id.content_layout, recentListFragment, fragmentTag);
         } else {
@@ -303,7 +369,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
 
     }
 
-    private void hideFragment(){
+    private void hideFragment() {
         FragmentManager fManager = mActivity.getSupportFragmentManager();
         FragmentTransaction fTransaction = fManager.beginTransaction();
         Fragment fragment = fManager.findFragmentByTag(fragmentTag);
@@ -315,6 +381,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
 
     //show the progress dialog
     public void showProcessDialog() {
+        mHandler.removeMessages(MESSAGE_HIDEDIALOG);
         if (dialog == null || !dialog.isShowing()) {
             dialog = new Dialog(mActivity, R.style.TransparentDialog);
             dialog.setContentView(R.layout.layout_data_loading_dialog);

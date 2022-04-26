@@ -1,35 +1,61 @@
 package com.ev.bluetooth.phonebook.adapter;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.vcard.VCardEntry;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.ev.bluetooth.phonebook.common.EVDateUtils;
+import com.ev.bluetooth.phonebook.common.PhoneCallLog;
+import com.ev.bluetooth.livedata.CallHistoryLiveData;
+import com.ev.bluetooth.log.L;
 import com.ev.bluetooth.phonebook.R;
-import com.ev.bluetooth.phonebook.constants.Constants;
-import com.ev.bluetooth.phonebook.utils.LogUtils;
+import com.ev.bluetooth.Constants;
+import com.ev.bluetooth.telecom.ui.common.entity.UiCallLog;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
-public class RecentsAdapter extends BaseAdapter {
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class RecentsAdapter extends RecyclerView.Adapter<RecentsAdapter.ViewHolder> {
     private static final String TAG = RecentsAdapter.class.getSimpleName();
 
     private Context mContext;
     private LayoutInflater inflater;
-    private ViewHolder viewHolder;
+    // private ViewHolder viewHolder;
     private List<VCardEntry> vCardEntryList;
+
+    private List<UiCallLog> mUiCallLogs = new ArrayList<>();
     private OnRecentItemClickListener onRecentItemClickListener;
+    private int currentPosition = 0;
+    private int lastPostion = 0;
+    private RecyclerView mRecyclerView;
+
+    public RecentsAdapter(Context mContext) {
+        this.mContext = mContext;
+        inflater = LayoutInflater.from(mContext);
+        if (Constants.IS_DEBUG) {
+            ArrayList<PhoneCallLog.Record> records = new ArrayList<>();
+            records.add(new PhoneCallLog.Record(1648999437000L, 1));
+            records.add(new PhoneCallLog.Record(1648999350000l, 2));
+            records.add(new PhoneCallLog.Record(1648999332000l, 2));
+
+            mUiCallLogs.add(new UiCallLog("Tina", "我自己1", "1张婷婷", null, records));
+            mUiCallLogs.add(new UiCallLog("Tina", "我自己2", "2张婷婷", null, records));
+            mUiCallLogs.add(new UiCallLog("Tina", "我自己3", "3张婷婷", null, records));
+            mUiCallLogs.add(new UiCallLog("Tina", "我自己4", "4张婷婷", null, records));
+            mUiCallLogs.add(new UiCallLog("Tina", "我自己5", "5张婷婷", null, records));
+        }
+
+    }
 
     public RecentsAdapter(Context mContext, List<VCardEntry> vCardEntryList) {
         this.mContext = mContext;
@@ -37,14 +63,96 @@ public class RecentsAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(mContext);
     }
 
+    public void setUiCallLogs(@NonNull List<UiCallLog> uiCallLogs) {
+        L.d(TAG, "setUiCallLogs: %d", uiCallLogs.size());
+        Log.i(TAG, "setUiCallLogs: ----------------------------------");
+        for (UiCallLog log : uiCallLogs) {
+            Log.i(TAG, "setUiCallLogs: getAvatarUri" + log.getAvatarUri());
+            Log.i(TAG, "setUiCallLogs: getNumber" + log.getNumber());
+            Log.i(TAG, "setUiCallLogs: getText" + log.getText());
+            Log.i(TAG, "setUiCallLogs: getTitle" + log.getTitle());
+        }
+        Log.i(TAG, "setUiCallLogs: ----------------------------------");
+        mUiCallLogs.clear();
+        mUiCallLogs.addAll(uiCallLogs);
+        notifyDataSetChanged();
+    }
+
+    @NonNull
     @Override
-    public int getCount() {
-        return vCardEntryList.size();
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recents_item_layout, parent, false);
+        ViewHolder viewHolder = new ViewHolder(view);
+        return viewHolder;
     }
 
     @Override
-    public Object getItem(int position) {
-        return vCardEntryList.get(position);
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        UiCallLog uiCallLog = mUiCallLogs.get(position);
+        /* TelecomUtils.setContactBitmapAsync(
+                holder.mAvatarView.getContext(),
+                holder.mAvatarView,
+                uiCallLog.getAvatarUri(),
+                uiCallLog.getTitle());*/
+        Glide.with(mContext).load(uiCallLog.getAvatarUri()).apply((new RequestOptions()).centerCrop().error(R.drawable.icon_avatar_default)).into(holder.mAvatarView);
+        holder.name.setText(uiCallLog.getTitle());
+
+        /** 还需增加次数统计
+         * */
+        if (uiCallLog.getMostRecentCallType() == CallHistoryLiveData.CallType.MISSED_TYPE) {
+            holder.recentCall.setBackgroundResource(R.drawable.icon_call_in);
+            holder.name.setTextColor(mContext.getResources().getColor(R.color.color_EB5545));
+        } else if (uiCallLog.getMostRecentCallType() == CallHistoryLiveData.CallType.INCOMING_TYPE) {
+            holder.recentCall.setBackgroundResource(R.drawable.icon_call_in);
+        } else {
+            holder.recentCall.setBackgroundResource(0);
+        }
+
+        holder.recentCallTime.setText(EVDateUtils.getInstance(mContext).dateCompareTo(uiCallLog.getMostRecentCallEndTimestamp()));
+        holder.mMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //向左/→滑动动画
+                Log.i(TAG, "onClick: currentPosition=" + currentPosition);
+                Log.i(TAG, "onClick: position=" + position);
+                translate(holder.mLayout);
+                if (currentPosition != position) {
+                    resetUI(currentPosition);
+                    currentPosition = position;
+                }
+            }
+        });
+        holder.mMsgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRecentItemClickListener.onMsgBtnClick(position);
+            }
+        });
+        holder.mDelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRecentItemClickListener.onDelBtnClick(position);
+            }
+        });
+        holder.mLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.isActivated()) {
+                    translate(v);
+                } else
+                    onRecentItemClickListener.onRecentItemClick(position);
+            }
+        });
+
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position, @NonNull List<Object> payloads) {
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position);
+        } else {
+            super.onBindViewHolder(holder, position, payloads);
+        }
     }
 
     @Override
@@ -52,59 +160,58 @@ public class RecentsAdapter extends BaseAdapter {
         return position;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        VCardEntry vCardEntry = vCardEntryList.get(position);
-        if (convertView == null) {
-            viewHolder = new ViewHolder();
-            convertView = inflater.inflate(R.layout.recents_item_layout, parent, false);
-            viewHolder.recentCall = (ImageView) convertView.findViewById(R.id.recent_call);
-            viewHolder.name = (TextView) convertView.findViewById(R.id.recent_name);
-            viewHolder.divider = (View) convertView.findViewById(R.id.recent_divider);
-            viewHolder.recentCallTime = (TextView) convertView.findViewById(R.id.recent_call_time);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-        //LogUtils.i(TAG, "getGiven:" + vCardEntry.getNameData().getGiven());
-        Collection<String> collection = vCardEntry.getCallDate().getTypeCollection();
-        if(collection!=null){
-            for(String category:collection){
-                if(Constants.VCARD_PROPERTY_CALLTYPE_INCOMING.equals(category)){
-                    viewHolder.recentCall.setBackgroundResource(R.drawable.icon_call_in);
-                }else if(Constants.VCARD_PROPERTY_CALLTYPE_MISSED.equals(category)){
-                    viewHolder.recentCall.setBackgroundResource(R.drawable.icon_call_in);
-                    viewHolder.name.setTextColor(mContext.getResources().getColor(R.color.color_EB5545));
-                }else{
-                    viewHolder.recentCall.setBackgroundResource(0);
-                }
-            }
-        }else {
-            viewHolder.recentCall.setBackgroundResource(0);
-        }
-
-        viewHolder.name.setText(vCardEntry.getDisplayName());
-        viewHolder.recentCallTime.setText(dateCompareTo(parserDateFormat(vCardEntry.getCallDate().getCallDatetime())));
-
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onRecentItemClickListener.onRecentItemClick(position);
-            }
-        });
-
-        return convertView;
+    public void setRecyclerView(RecyclerView recyclerView) {
+        mRecyclerView = recyclerView;
     }
 
-    private class ViewHolder {
+    @Override
+    public int getItemCount() {
+        return mUiCallLogs.size();
+    }
+
+    public UiCallLog getItem(int postion) {
+        return mUiCallLogs.get(postion);
+    }
+
+    private void resetUI(int currentPosition) {
+        View view = mRecyclerView.getLayoutManager().findViewByPosition(currentPosition);
+        if (view.isActivated())
+            translate(view);
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        View mLayout;
         ImageView recentCall;
         TextView name;
         View divider;
         TextView recentCallTime;
+        ImageView mAvatarView;
+        ImageView mMsgBtn;
+        ImageView mDelBtn;
+        ImageView mMore;
+
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mLayout = itemView;
+            recentCall = (ImageView) itemView.findViewById(R.id.recent_call);
+            name = (TextView) itemView.findViewById(R.id.recent_name);
+            divider = (View) itemView.findViewById(R.id.recent_divider);
+            recentCallTime = (TextView) itemView.findViewById(R.id.recent_call_time);
+            mAvatarView = (ImageView) itemView.findViewById(R.id.recent_photo);
+            mMsgBtn = (ImageView) itemView.findViewById(R.id.msg_btn);
+            mDelBtn = (ImageView) itemView.findViewById(R.id.del_btn);
+            mMore = (ImageView) itemView.findViewById(R.id.recent_more);
+        }
     }
 
-    public interface OnRecentItemClickListener{
+    public interface OnRecentItemClickListener {
         public void onRecentItemClick(int position);
+
+        public void onMsgBtnClick(int position);
+
+        public void onDelBtnClick(int position);
+
     }
 
     public void setOnRecentItemClickListener(
@@ -112,90 +219,25 @@ public class RecentsAdapter extends BaseAdapter {
         this.onRecentItemClickListener = onRecentItemClickListener;
     }
 
-    public Date parserDateFormat(String string) {
-        if (string == null) return null;
-
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd'T'HHmmss");
-        Date date = null;
-        try {
-            date = simpleDateFormat.parse(string);
-        } catch (ParseException e) {
-            e.printStackTrace();
+    public void translate(View view1) {
+        int l = 0;
+        int t = view1.getTop();
+        int r = view1.getWidth() - view1.findViewById(R.id.layout_more).getWidth() - 420;
+        int b = view1.getBottom();
+        if (!view1.isActivated()) {
+            l = -view1.findViewById(R.id.layout_more).getWidth();
+            r = view1.getWidth() + view1.findViewById(R.id.layout_more).getWidth();
         }
-
-        return date;
+        Log.i(TAG, "translate: l=" + l);
+        Log.i(TAG, "translate: t=" + t);
+        Log.i(TAG, "translate: r=" + r);
+        Log.i(TAG, "translate: b=" + b);
+        view1.layout(l, t, r, b);
+        view1.setActivated(!view1.isActivated());
     }
 
-    public String dateCompareTo(Date date) {
-        if (date == null) return null;
-        String dateInfo = null;
-
-        Date todayDate = new Date();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(todayDate);
-        int day1 = calendar.get(Calendar.DAY_OF_YEAR);
-
-        calendar.setTime(date);
-        int day2 = calendar.get(Calendar.DAY_OF_YEAR);
-
-        if (date != null) {
-            int day = day1 - day2;
-            switch (day) {
-                case 0:
-                    if(getTimeFormat()) {
-                        dateInfo = getCurrentTime(date);
-                    }else{
-                        if(Calendar.AM == getTimeStyle(date)){
-                            dateInfo = getCurrentTime(date)+" AM";
-                        }else {
-                            dateInfo = getCurrentTime(date)+" PM";
-                        }
-                    }
-                    break;
-                case 1:
-                    dateInfo = "昨天";
-                    break;
-                default:
-                    dateInfo = dateToWeek(date);
-            }
-        }
-        return dateInfo;
-    }
-
-    private String getCurrentTime(Date date) {
-        String time;
-        String TIME_FORMAT = "hh:mm";//hh 12h ,HH 24h
-        if(getTimeFormat()){
-            TIME_FORMAT = "HH:mm";
-        }
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(TIME_FORMAT);
-        time = simpleDateFormat.format(date);
-        return time;
-    }
-
-    private boolean getTimeFormat(){
-        return DateFormat.is24HourFormat(mContext);
-    }
-
-    private int getTimeStyle(Date date) {
-        int mStyle;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        mStyle = calendar.get(Calendar.AM_PM);
-
-        return mStyle;
-    }
-
-    public String dateToWeek(Date date) {
-        String[] weekDays = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        //一周的第几天
-        int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
-        if (w < 0)
-            w = 0;
-        return weekDays[w];
+    private int getCallTypeBg() {
+        return R.drawable.icon_call_in;
     }
 
 }

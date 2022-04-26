@@ -13,9 +13,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 
-import com.ev.bluetooth.phonebook.BTBookApplication;
+import com.ev.bluetooth.btManager.BtManager;
 import com.ev.bluetooth.phonebook.connectthread.MapConnectThread;
-import com.ev.bluetooth.phonebook.connectthread.PbapConnectThread;
 import com.ev.bluetooth.phonebook.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -33,12 +32,11 @@ public class BluetoothMapService extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtils.i(TAG, " onCreate ");
-
+        mContext = this;
         if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BTBookApplication.getInstance().mBluetoothAdapter;
+            mBluetoothAdapter = BtManager.getInstance(mContext).mBluetoothAdapter;
         }
 
-        mContext = this;
     }
 
     @Override

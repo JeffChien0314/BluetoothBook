@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    
+android:id="@+id/recent_parent_layout"
     android:layout_width="690px"
     android:layout_height="180px">
 
@@ -77,8 +79,31 @@
         app:layout_constraintLeft_toRightOf="@id/recent_call_time"
         app:layout_constraintBottom_toBottomOf="@id/recent_call_time"
         app:layout_constraintTop_toTopOf="@id/recent_call_time">
-
     </ImageView>
+    <LinearLayout
+        android:id="@+id/layout_more"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintLeft_toRightOf="@+id/recent_more"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <ImageView
+            android:id="@+id/msg_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_icon_msg_btn"
+            />
+        <ImageView
+            android:id="@+id/del_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_icon_delete_btn"
+            />
+
+    
+</LinearLayout>
 
     <View
         android:id="@+id/recent_divider"

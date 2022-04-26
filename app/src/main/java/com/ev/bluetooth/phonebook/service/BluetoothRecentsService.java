@@ -10,12 +10,13 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.android.vcard.VCardEntry;
-import com.ev.bluetooth.phonebook.BTBookApplication;
-import com.ev.bluetooth.phonebook.R;
+import com.ev.bluetooth.btManager.BtManager;
 import com.ev.bluetooth.phonebook.connectthread.PbapConnectThread;
-import com.ev.bluetooth.phonebook.constants.Constants;
+import com.ev.bluetooth.Constants;
 import com.ev.bluetooth.phonebook.constants.PbapClientConstants;
 import com.ev.bluetooth.phonebook.utils.LogUtils;
 import com.ev.bluetooth.phonebook.utils.PbapClientUtils;
@@ -39,12 +40,11 @@ public class BluetoothRecentsService extends Service {
     public void onCreate() {
         super.onCreate();
         LogUtils.i(TAG, " onCreate ");
-
+        mContext = this;
         if (mBluetoothAdapter == null) {
-            mBluetoothAdapter = BTBookApplication.getInstance().mBluetoothAdapter;
+            mBluetoothAdapter = BtManager.getInstance(mContext).mBluetoothAdapter;
         }
 
-        mContext = this;
     }
 
     @Override
@@ -71,22 +71,26 @@ public class BluetoothRecentsService extends Service {
         super.onDestroy();
     }
 
-    public void setRequestPbapPath(String path){
+    public void setRequestPbapPath(String path) {
         this.path = path;
     }
 
-    public List<VCardEntry> getVCardEntryList(){
+    public List<VCardEntry> getVCardEntryList() {
         return vCardEntryList;
     }
 
-    public void connectPbapClient(String address) {
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+    public boolean connectPbapClient() {
+        //  if (TextUtils.isEmpty(address)) return false;
+        BluetoothDevice device = BtManager.getInstance(mContext).getConnectedDevice();
+        if (null == device) return false;//无连接设备
+
         LogUtils.i(TAG, "mPbapClient=" + mPbapClient);
         if (mPbapClient != null) {
             mPbapClient.disconnect();
             mPbapClient = null;
         }
         if (mPbapClient == null) {
+            Log.i(TAG, "connectPbapClient: device="+device.getName()+";MAC:"+device.getAddress());
             mPbapClient = new BluetoothPbapClient(device, mHandler);
             //LogUtils.i(TAG, "PbapClientUtils.getConnectState:" + PbapClientUtils.getConnectState(mPbapClient));
             if (mPbapClient != null) {
@@ -97,6 +101,7 @@ public class BluetoothRecentsService extends Service {
                 LogUtils.i(TAG, mPbapClient.getState().toString());
             }
         }
+        return true;
     }
 
     private class BluetoothServiceHandler extends Handler {
@@ -111,15 +116,15 @@ public class BluetoothRecentsService extends Service {
                     vCardEntryList = (List<VCardEntry>) msg.obj;
                     sendBroadcast(new Intent(Constants.PBAP_RECENTS_READY));
                     LogUtils.i(TAG, "vCardEntry:" + vCardEntryList.size());
-                    for(VCardEntry vCardEntry:vCardEntryList){
+                    for (VCardEntry vCardEntry : vCardEntryList) {
                         //LogUtils.i(TAG, "vCardEntry:\n" + vCardEntry.toString());
                         Collection<String> collection = vCardEntry.getCallDate().getTypeCollection();
-                        if(collection!=null){
-                            for(String category:collection){
-                                LogUtils.i(TAG, "category:"+category+","+vCardEntry.getPhoneList().get(0).getNumber());
+                        if (collection != null) {
+                            for (String category : collection) {
+                                LogUtils.i(TAG, "category:" + category + "," + vCardEntry.getPhoneList().get(0).getNumber());
                             }
                         }
-                        LogUtils.i(TAG, "getCallDatetime:"+vCardEntry.getCallDate().getCallDatetime());
+                        LogUtils.i(TAG, "getCallDatetime:" + vCardEntry.getCallDate().getCallDatetime());
                     }
                     mPbapClient.disconnect();
                     mPbapClient = null;
@@ -127,14 +132,17 @@ public class BluetoothRecentsService extends Service {
                 break;
                 case BluetoothPbapClient.EVENT_SESSION_CONNECTED: {
                     LogUtils.i(TAG, "EVENT_SESSION_CONNECTED");
+                    Toast.makeText(mContext,"mPbapClient 连接成功，正在获取信息...",Toast.LENGTH_SHORT);
                     if (PbapClientUtils.getConnectState(mPbapClient)) {
                         LogUtils.i(TAG, "pulling the PhoneBook, it may take a long time ! ");
-                        PbapClientUtils.pullPhonebook(mPbapClient, PbapClientConstants.CCH_PATH,Constants.PBAP_RECENTS_MAX_COUNT);
+                        PbapClientUtils.pullPhonebook(mPbapClient, PbapClientConstants.CCH_PATH, Constants.PBAP_RECENTS_MAX_COUNT);
                     }
                 }
                 break;
                 case BluetoothPbapClient.EVENT_SESSION_DISCONNECTED: {
                     LogUtils.i(TAG, "EVENT_SESSION_DISCONNECTED");
+                    Toast.makeText(mContext,"mPbapClient 连接失败",Toast.LENGTH_SHORT);
+                    sendBroadcast(new Intent(Constants.PBAP_RECENTS_FAILED));
                 }
                 break;
                 default: {
