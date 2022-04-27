@@ -17,7 +17,6 @@
 package com.android.vcard;
 
 import com.android.vcard.VCardUtils.PhoneNumberUtilsPort;
-import com.ev.bluetooth.phonebook.utils.LogUtils;
 
 import android.accounts.Account;
 import android.content.ContentProviderOperation;

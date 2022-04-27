@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ev.bluetooth.phonebook">
+    
+package="com.ev.dialer.phonebook">
     <!-- android:sharedUserId="android.uid.system"> -->
     <application
         
-android:name="com.ev.bluetooth.BTBookApplication"
+android:name="com.ev.dialer.BTBookApplication"
         android:allowBackup="false"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppCompat_AppTheme">
         <activity
-            android:name=".ui.PhoneBookActivity"
+            
+android:name="com.ev.dialer.phonebook.ui.PhoneBookActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppCompat_AppTheme">
@@ -22,7 +24,8 @@ android:name="com.ev.bluetooth.BTBookApplication"
         </activity>
 
         <receiver
-            android:name=".receiver.PhoneReceiver"
+            
+android:name="com.ev.dialer.phonebook.receiver.PhoneReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -53,11 +56,14 @@ android:name="com.ev.bluetooth.BTBookApplication"
             </intent-filter>
         </activity>-->
 
-        <service android:name=".service.BluetoothRecentsService" />
-        <service android:name=".service.BluetoothContactsService" />
+        <service 
+android:name="com.ev.dialer.phonebook.service.BluetoothRecentsService" />
+        <service 
+android:name="com.ev.dialer.phonebook.service.BluetoothContactsService" />
 
         <service
-            android:name=".service.BluetoothMapService"
+            
+android:name="com.ev.dialer.phonebook.service.BluetoothMapService"
             android:enabled="true"
             android:exported="true" />
     </application>

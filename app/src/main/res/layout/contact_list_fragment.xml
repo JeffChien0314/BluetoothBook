@@ -3,9 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.ContactListFragment">
+    
+tools:context=".ui.contact.ContactListFragment">
 
-    <ListView
+    
+<androidx.recyclerview.widget.RecyclerView
         android:id="@+id/contacts_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -17,9 +19,11 @@
         android:scrollbarStyle="insideOverlay"
         android:scrollbarThumbVertical="@drawable/contacts_list_scrollbar">
 
-    </ListView>
+    
+</androidx.recyclerview.widget.RecyclerView>
 
-    <com.ev.bluetooth.phonebook.view.LetterListView
+    
+<com.ev.dialer.phonebook.ui.common.LetterListView
         android:id="@+id/letter_list"
         android:layout_width="45px"
         android:layout_height="match_parent"
@@ -28,6 +32,7 @@
         android:layout_marginRight="60px"
         android:layout_alignParentRight="true">
 
-    </com.ev.bluetooth.phonebook.view.LetterListView>
+    
+</com.ev.dialer.phonebook.ui.common.LetterListView>
 
 </RelativeLayout>

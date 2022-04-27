@@ -101,7 +101,6 @@ android:id="@+id/recent_parent_layout"
             android:layout_height="wrap_content"
             android:background="@drawable/selector_icon_delete_btn"
             />
-
     
 </LinearLayout>
 

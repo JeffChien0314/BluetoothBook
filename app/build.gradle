@@ -17,7 +17,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.ev.bluetooth.BTBookApplication"
+        applicationId "com.ev.dialer"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1
