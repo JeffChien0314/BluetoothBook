@@ -19,17 +19,20 @@ import android.telecom.Call;
 
 import com.android.internal.annotations.VisibleForTesting;
 
-class ProjectionCallHandler implements InCallServiceImpl.ActiveCallListChangedCallback
+class ProjectionCallHandler
        /* CarProjectionManager.ProjectionStatusListener*/ {
     private static final String TAG = "CD.ProjectionCallHandler";
 
-    @VisibleForTesting static final String HFP_CLIENT_SCHEME = "hfpc";
-    @VisibleForTesting static final String PROJECTION_STATUS_EXTRA_HANDLES_PHONE_UI =
+    @VisibleForTesting
+    static final String HFP_CLIENT_SCHEME = "hfpc";
+    @VisibleForTesting
+    static final String PROJECTION_STATUS_EXTRA_HANDLES_PHONE_UI =
             "android.car.projection.HANDLES_PHONE_UI";
-    @VisibleForTesting static final String PROJECTION_STATUS_EXTRA_DEVICE_STATE =
+    @VisibleForTesting
+    static final String PROJECTION_STATUS_EXTRA_DEVICE_STATE =
             "android.car.projection.DEVICE_STATE";
 
-    @Override
+    /*@Override
     public boolean onTelecomCallAdded(Call telecomCall) {
         return false;
     }
@@ -38,7 +41,7 @@ class ProjectionCallHandler implements InCallServiceImpl.ActiveCallListChangedCa
     public boolean onTelecomCallRemoved(Call telecomCall) {
         return false;
     }
-
+*/
    /* private final CarProjectionManager mCarProjectionManager;
     private final TelecomManager mTelecomManager;
 

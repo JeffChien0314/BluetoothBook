@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2019 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/dialing_popup_width"
+    android:layout_height="wrap_content"
+    android:background="@color/black">
+
+    <ImageView
+        android:id="@+id/icon_pic"
+        android:layout_width="@dimen/dialing_popup_pic_width"
+        android:layout_height="@dimen/dialing_popup_pic_width"
+        android:layout_marginLeft="@dimen/dialing_popup_pic_margin"
+        android:layout_marginTop="@dimen/dialing_popup_pic_margin"
+        android:background="@drawable/icon_avatar_default"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btn_decline"
+        android:layout_width="@dimen/dialing_popup_btn_size"
+        android:layout_height="@dimen/dialing_popup_btn_size"
+        android:layout_marginTop="@dimen/dialing_popup_btn_margin_top"
+        android:background="@drawable/selector_icon_decline_btn"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/btn_answer"
+        android:layout_width="@dimen/dialing_popup_btn_size"
+        android:layout_height="@dimen/dialing_popup_btn_size"
+        android:layout_marginRight="@dimen/dialing_popup_btn_interval"
+        android:background="@drawable/selector_icon_answer_small_btn"
+        app:layout_constraintRight_toLeftOf="@id/btn_decline"
+        app:layout_constraintTop_toTopOf="@id/btn_decline" />
+
+    <ImageView
+        android:id="@+id/btn_dialpad"
+        android:layout_width="@dimen/dialing_popup_btn_size"
+        android:layout_height="@dimen/dialing_popup_btn_size"
+        android:layout_marginLeft="@dimen/dialing_popup_btn_interval"
+        android:layout_marginBottom="@dimen/dialing_popup_btn_margin_bottom"
+        android:background="@drawable/selector_icon_pad_btn"
+        app:layout_constraintBottom_toTopOf="@+id/keypad_layout"
+        app:layout_constraintLeft_toRightOf="@id/btn_decline"
+        app:layout_constraintTop_toTopOf="@id/btn_decline" />
+
+    <TextView
+        android:id="@+id/text_name"
+        android:layout_width="@dimen/dialing_popup_name_width"
+        android:layout_height="@dimen/dialing_popup_name_height"
+        android:layout_marginLeft="@dimen/dialing_popup_name_margin"
+        android:text="text_name"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dialing_popup_name_textsize"
+        app:layout_constraintLeft_toRightOf="@+id/icon_pic"
+        app:layout_constraintTop_toTopOf="@+id/icon_pic" />
+
+    <TextView
+        android:id="@+id/text_type"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dialing_popup_type_height"
+        android:text="text_type"
+        android:textColor="@color/color_3B79C3"
+        android:textSize="@dimen/dialing_popup_type_textsize"
+        app:layout_constraintLeft_toLeftOf="@+id/text_name"
+        app:layout_constraintTop_toBottomOf="@+id/text_name" />
+
+    <TextView
+        android:id="@+id/text_state"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dialing_popup_type_height"
+        android:layout_marginLeft="@dimen/dialing_popup_state_margin"
+        android:text="calling"
+        android:textColor="@color/color_80FFFFFF"
+        android:textSize="@dimen/dialing_popup_state_textsize"
+        app:layout_constraintLeft_toRightOf="@+id/text_type"
+        app:layout_constraintTop_toBottomOf="@+id/text_name"
+        app:layout_goneMarginLeft="@dimen/dialing_popup_name_margin" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/keypad_layout"
+        android:layout_width="@dimen/dialing_popup_keypad_width"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialing_popup_keyboard_margin_bottom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_dialpad"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/input_number"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dialing_popup_number_text_height"
+            android:gravity="center"
+
+            android:textColor="@color/white"
+            android:textSize="@dimen/dialing_popup_number_textsize"
+            android:layout_marginTop="@dimen/dialing_popup_number_text_margin_top"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/top_divider" />
+
+        <View
+            android:id="@+id/top_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/color_80FFFFFF"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/number_layout"
+            layout="@layout/keypad"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/input_number"
+            android:layout_width="@dimen/dialing_popup_number_layout_width"
+            android:layout_height="@dimen/dialing_popup_number_layout_height"
+            android:layout_marginTop="@dimen/dialing_popup_number_text_margin_top"/>
+
+        <!--<androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/number_layout"
+            android:layout_width="@dimen/dialing_popup_number_layout_width"
+            android:layout_height="@dimen/dialing_popup_number_layout_height"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/number_text">
+            &lt;!&ndash; Row1&ndash;&gt;
+            <Button
+                android:id="@+id/number_1"
+                style="@style/KeypadButtonStyle"
+                android:text="1"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+            &lt;!&ndash; app:layout_constraintHorizontal_weight="1"&ndash;&gt;
+            <Button
+                android:id="@+id/number_2"
+                style="@style/KeypadButtonStyle"
+                android:text="2"
+                app:layout_constraintLeft_toRightOf="@id/number_1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/number_3"
+                style="@style/KeypadButtonStyle"
+                android:text="3"
+                app:layout_constraintLeft_toRightOf="@+id/number_2"
+                app:layout_constraintTop_toTopOf="parent" />
+            &lt;!&ndash; Row2&ndash;&gt;
+            <Button
+                android:id="@+id/number_4"
+                style="@style/KeypadButtonStyle"
+                android:text="4"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/number_1" />
+
+            <Button
+                android:id="@+id/number_5"
+                style="@style/KeypadButtonStyle"
+                android:text="5"
+                app:layout_constraintLeft_toRightOf="@id/number_4"
+                app:layout_constraintTop_toBottomOf="@id/number_1"  />
+
+            <Button
+                android:id="@+id/number_6"
+                style="@style/KeypadButtonStyle"
+                android:text="6"
+                app:layout_constraintLeft_toRightOf="@+id/number_5"
+                app:layout_constraintTop_toBottomOf="@id/number_1"  />
+            &lt;!&ndash; Row3&ndash;&gt;
+            <Button
+                android:id="@+id/number_7"
+                style="@style/KeypadButtonStyle"
+                android:text="7"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/number_4" />
+
+            <Button
+                android:id="@+id/number_8"
+                style="@style/KeypadButtonStyle"
+                android:text="8"
+                app:layout_constraintLeft_toRightOf="@id/number_7"
+                app:layout_constraintTop_toBottomOf="@id/number_4" />
+
+            <Button
+                android:id="@+id/number_9"
+                style="@style/KeypadButtonStyle"
+                android:text="9"
+                app:layout_constraintLeft_toRightOf="@+id/number_8"
+                app:layout_constraintTop_toBottomOf="@id/number_4" />
+            &lt;!&ndash; Row4&ndash;&gt;
+            <Button
+                android:id="@+id/asterisk"
+                style="@style/KeypadButtonStyle"
+                android:text="*"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/number_7" />
+
+            <Button
+                android:id="@+id/number_0"
+                style="@style/KeypadButtonStyle"
+                android:text="0"
+                app:layout_constraintLeft_toRightOf="@+id/asterisk"
+                app:layout_constraintTop_toBottomOf="@id/number_7"  />
+
+            <Button
+                android:id="@+id/pound"
+                style="@style/KeypadButtonStyle"
+                android:layout_marginTop="@dimen/keypad_margin_x"
+                android:text="#"
+                app:layout_constraintLeft_toRightOf="@+id/number_0"
+                app:layout_constraintTop_toBottomOf="@id/number_7"  />
+            &lt;!&ndash;dividers&ndash;&gt;
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_marginTop="@dimen/keypad_margin_x"
+                android:background="@color/color_80FFFFFF"
+                app:layout_constraintTop_toBottomOf="@id/number_1" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/color_80FFFFFF"
+                android:layout_marginTop="@dimen/keypad_margin_middle"
+                app:layout_constraintTop_toBottomOf="@id/number_4" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/color_80FFFFFF"
+                android:layout_marginTop="@dimen/keypad_margin_middle"
+                app:layout_constraintTop_toBottomOf="@id/number_7" />
+
+            <View
+                android:layout_width="1px"
+                android:layout_height="match_parent"
+                android:background="@color/color_80FFFFFF"
+                android:layout_marginRight="@dimen/keypad_margin_middle"
+                app:layout_constraintLeft_toRightOf="@id/number_1" />
+
+            <View
+                android:layout_width="1px"
+                android:layout_height="match_parent"
+                android:background="@color/color_80FFFFFF"
+                android:layout_marginRight="@dimen/keypad_margin_middle"
+                app:layout_constraintLeft_toRightOf="@id/number_2"/>
+            &lt;!&ndash; <View
+                 android:layout_width="match_parent"
+                 android:layout_height="1px"
+                 app:layout_constraintTop_toBottomOf="@id/number_1"
+                 android:background="@color/color_80FFFFFF"/>&ndash;&gt;
+        </androidx.constraintlayout.widget.ConstraintLayout>
+-->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

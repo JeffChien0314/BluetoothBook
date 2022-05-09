@@ -2,14 +2,11 @@ package com.ev.dialer.phonebook.ui;
 
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -29,7 +26,6 @@ import com.ev.dialer.phonebook.utils.LogUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 
 import androidx.annotation.NonNull;
@@ -49,11 +45,14 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     private List<VCardEntry> vCardEntryList;
     private static final String fragmentTag = "FragmentTag";
     private Dialog dialog;
-    private HashMap<String, List<VCardEntry>> listHashMap = new HashMap<>();
-    private final int MESSAGE_SHOWDIALOG = 0;
-    private final int MESSAGE_HIDEDIALOG = 1;
-    private final int MESSAGE_SHOWRECENTLIST = 2;
-    private final int MESSAGE_SHOWCONTACTLIST = 3;
+    //  private HashMap<String, List<VCardEntry>> listHashMap = new HashMap<>();
+    public final int MESSAGE_SHOWDIALOG = 0;
+    public static final int MESSAGE_HIDEDIALOG = 1;
+
+    public final int MESSAGE_SHOWRECENTLIST = 2;
+    public final int MESSAGE_SHOWCONTACTLIST = 3;
+    public static final int MESSAGE_HIDE_FRAGMENT = 4;
+    public final int MESSAGE_SYNC_TIMEOUT = 5 * 1000;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -62,7 +61,8 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             switch (msg.what) {
                 case MESSAGE_SHOWDIALOG:
                     showProcessDialog();
-                    sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, 10 * 1000);
+                    removeMessages(MESSAGE_HIDEDIALOG);
+                    sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, MESSAGE_SYNC_TIMEOUT);
                     break;
                 case MESSAGE_HIDEDIALOG:
                     hideProcessDialog();
@@ -83,7 +83,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             String action = intent.getAction();
             LogUtils.d(TAG, "onReceive, action:" + action);
             switch (action) {
-                case Constants.PBAP_RECENTS_READY:
+                /*case Constants.PBAP_RECENTS_READY:
                     vCardEntryList = mRecentsService.getVCardEntryList();
                     listHashMap.put("RECENTS", vCardEntryList);
                     mHandler.sendEmptyMessage(MESSAGE_SHOWRECENTLIST);
@@ -94,7 +94,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                     listHashMap.put("CONTACTS", vCardEntryList);
                     mHandler.sendEmptyMessage(MESSAGE_SHOWCONTACTLIST);
                     mHandler.sendEmptyMessage(MESSAGE_HIDEDIALOG);
-                    break;
+                    break;*/
                 case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
                     Toast.makeText(getApplicationContext(), "received", Toast.LENGTH_SHORT);
                     // TelephoneManager.ACTION_PHONE_STATE_CHANGED
@@ -165,10 +165,17 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         mKeypad.setOnFocusChangeListener(this);
     }
 
+    public void sendMessage(int what) {
+        mHandler.removeMessages(what);
+        mHandler.sendEmptyMessage(what);
+    }
+
     private void requestRecentsData() {
         if (Constants.IS_DEBUG) return;
+      //  mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
+        sendMessage(MESSAGE_SHOWRECENTLIST);
         //  getDataList();
-        Intent serviceIntent = new Intent(mActivity, BluetoothRecentsService.class);
+        /*Intent serviceIntent = new Intent(mActivity, BluetoothRecentsService.class);
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -185,12 +192,13 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                 mRecentsService = null;
             }
         };
-        mActivity.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+        mActivity.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);*/
     }
 
     private void requestContactsData() {
         if (Constants.IS_DEBUG) return;
-        Intent serviceIntent = new Intent(mActivity, BluetoothContactsService.class);
+        mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
+        /*Intent serviceIntent = new Intent(mActivity, BluetoothContactsService.class);
         ServiceConnection connection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
@@ -207,7 +215,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                 mRecentsService = null;
             }
         };
-        mActivity.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+        mActivity.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);*/
     }
 
     public void registerReceiver() {
@@ -267,8 +275,8 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             case R.id.recents:
                 clearSelectedView();
                 mRecents.setSelected(true);
-                hideFragment();
-                showRecentsList();
+                sendMessage(MESSAGE_HIDE_FRAGMENT);
+                sendMessage(MESSAGE_SHOWRECENTLIST);
                 /*if (listHashMap.containsKey("RECENTS")) {
                     vCardEntryList = listHashMap.get("RECENTS");
                     showRecentsList();
@@ -279,9 +287,11 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             case R.id.contacts:
                 clearSelectedView();
                 mContacts.setSelected(true);
-                hideFragment();
-                showContactsList();
-              /*  if (listHashMap.containsKey("CONTACTS")) {
+            //    hideFragment();
+                sendMessage(MESSAGE_HIDE_FRAGMENT);
+                sendMessage(MESSAGE_SHOWCONTACTLIST);
+                /*  showContactsList();
+              if (listHashMap.containsKey("CONTACTS")) {
                     vCardEntryList = listHashMap.get("CONTACTS");
                     showContactsList();
                 } else {

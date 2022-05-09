@@ -1,31 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    
-package="com.ev.dialer.phonebook">
-    <!-- android:sharedUserId="android.uid.system"> -->
+    package="com.ev.dialer.phonebook"
+    android:sharedUserId="android.uid.system">
+
     <application
-        
-android:name="com.ev.dialer.BTBookApplication"
+        android:name="com.ev.dialer.BTBookApplication"
         android:allowBackup="false"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppCompat_AppTheme">
         <activity
-            
-android:name="com.ev.dialer.phonebook.ui.PhoneBookActivity"
+            android:name="com.ev.dialer.phonebook.ui.PhoneBookActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/AppCompat_AppTheme">
+            <!-- region provides dial UI -->
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.CALL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.DIAL"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:scheme="tel"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- <intent-filter>
+                 <action android:name="android.intent.action.SEARCH"/>
+                 <category android:name="android.intent.category.DEFAULT"/>
+             </intent-filter>-->
+            <!--
+                        <intent-filter>
+                            <action android:name="android.intent.action.VIEW"/>
+                            <category android:name="android.intent.category.DEFAULT"/>
+                            <category android:name="android.intent.category.BROWSABLE"/>
+                            <data android:mimeType="vnd.android.cursor.dir/calls"/>
+                        </intent-filter>-->
         </activity>
 
         <receiver
-            
-android:name="com.ev.dialer.phonebook.receiver.PhoneReceiver"
+            android:name="com.ev.dialer.phonebook.receiver.PhoneReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -45,29 +69,52 @@ android:name="com.ev.dialer.phonebook.receiver.PhoneReceiver"
              </intent-filter>-->
         </receiver>
 
-        <!--<activity
+        <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>-->
-
-        <service 
-android:name="com.ev.dialer.phonebook.service.BluetoothRecentsService" />
-        <service 
-android:name="com.ev.dialer.phonebook.service.BluetoothContactsService" />
+        </activity>
 
         <service
-            
-android:name="com.ev.dialer.phonebook.service.BluetoothMapService"
+            android:name="com.ev.dialer.telecom.dial.MyConnectionService"
+            android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.ConnectionService" />
+            </intent-filter>
+
+        </service>
+        <service
+            android:name="com.ev.dialer.telecom.InCallServiceImpl"
+            android:exported="true"
+            android:permission="android.permission.BIND_INCALL_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.InCallService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                android:value="true" />
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_UI"
+                android:value="true" />
+            <meta-data
+                android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
+                android:value="true"/>
+        </service>
+        <service android:name="com.ev.dialer.telecom.ui.WindowService"/>
+        <service android:name="com.ev.dialer.phonebook.service.BluetoothRecentsService" />
+        <service android:name="com.ev.dialer.phonebook.service.BluetoothContactsService" />
+
+        <service
+            android:name="com.ev.dialer.phonebook.service.BluetoothMapService"
             android:enabled="true"
             android:exported="true" />
     </application>
-    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS"/>
+
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /><!--浮动视窗-->
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -76,6 +123,8 @@ android:name="com.ev.dialer.phonebook.service.BluetoothMapService"
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

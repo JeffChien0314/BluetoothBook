@@ -20,7 +20,7 @@ public class PhoneReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         LogUtils.d(TAG, "onReceive,action:"+action);
       //  Toast.makeText(context,"action="+action,Toast.LENGTH_SHORT);
-        switch (action){
+        /*switch (action){
             case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
                // TelephoneManager.ACTION_PHONE_STATE_CHANGED
                 String state = intent.getStringExtra(TelephonyManager.EXTRA_STATE);
@@ -42,6 +42,6 @@ public class PhoneReceiver extends BroadcastReceiver {
                 }
                 break;
 
-        }
+        }*/
     }
 }

@@ -27,7 +27,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ServiceManager;
 import android.telecom.Call;
 import android.telecom.CallAudioState;
 import android.telecom.CallAudioState.CallAudioRoute;
@@ -38,9 +40,11 @@ import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
-import com.ev.dialer.phonebook.utils.TelecomUtils;
+import com.android.internal.telephony.ITelephony;
 import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
+import com.ev.dialer.phonebook.utils.TelecomUtils;
+import com.ev.dialer.telecom.dial.MyConnectionService;
 import com.google.i18n.phonenumbers.Phonenumber;
 
 import java.util.ArrayList;
@@ -53,7 +57,7 @@ import androidx.core.app.ActivityCompat;
  * The entry point for all interactions between UI and telecom.
  */
 public class UiCallManager {
-    private static String TAG = "CD.TelecomMgr";
+    private static String TAG = UiCallManager.class.getName();
     private final int HEADSET_CLIENT = 16;
     private final int PBAP_CLIENT = 17;
 
@@ -66,6 +70,7 @@ public class UiCallManager {
     private Context mContext;
 
     private TelecomManager mTelecomManager;
+    private PhoneAccountHandle mPhoneAccountHandle;
     private InCallServiceImpl mInCallService;
     private BluetoothHeadsetClient mBluetoothHeadsetClient;
 
@@ -115,6 +120,13 @@ public class UiCallManager {
         intent.setAction(InCallServiceImpl.ACTION_LOCAL_BIND);
         context.bindService(intent, mInCallServiceConnection, Context.BIND_AUTO_CREATE);
 
+       // TelecomManager tm = (TelecomManager) getSystemService(Context.TELECOM_SERVICE);
+        mPhoneAccountHandle = new PhoneAccountHandle(
+                new ComponentName(context, MyConnectionService.class),
+                context.getPackageName());
+       /* PhoneAccount phoneAccount = PhoneAccount.builder(mPhoneAccountHandle, context.getPackageName()).setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED).build();
+        mTelecomManager.registerPhoneAccount(phoneAccount);
+*/
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null) {
             adapter.getProfileProxy(mContext, new BluetoothProfile.ServiceListener() {
@@ -284,17 +296,6 @@ public class UiCallManager {
         if (isValidNumber(number)) {
             Uri uri = Uri.fromParts("tel", number, null);
             L.d(TAG, "android.telecom.TelecomManager#placeCall: %s", number);
-/*
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return TODO;
-            }*/
             if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
@@ -305,7 +306,18 @@ public class UiCallManager {
                 // for ActivityCompat#requestPermissions for more details.
                 return false;
             }
-            mTelecomManager.placeCall(uri, null);// Manifest.permission.CALL_PHONE
+            ITelephony telephony = ITelephony.Stub.asInterface(
+                    ServiceManager.getService(Context.TELEPHONY_SERVICE));
+            if (telephony != null) {
+                Bundle bundle=new Bundle();
+       //         bundle.putParcelable(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, uri);
+                bundle.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
+                        mPhoneAccountHandle);
+        //        mTelecomManager.endCall();
+                mTelecomManager.placeCall(uri, null);
+                return true;
+            }
+            //   mTelecomManager.placeCall(uri, null);// Manifest.permission.CALL_PHONE
             return true;
         } else {
             L.d(TAG, "invalid number dialed", number);

@@ -2,8 +2,9 @@ package com.ev.dialer;
 
 import android.app.Application;
 
-import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.btManager.BtManager;
+import com.ev.dialer.notification.InCallNotificationController;
+import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.telecom.UiCallManager;
 
 
@@ -20,6 +21,9 @@ public class BTBookApplication extends Application {
         BtManager.getInstance(this);
         InMemoryPhoneBook.init(this);
         UiCallManager.init(this);
+        InCallNotificationController.init(this);
+
     }
+
 
 }

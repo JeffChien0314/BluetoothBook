@@ -21,7 +21,36 @@
     <item name="letter_to_tile_ratio" format="fraction" type="fraction">67%</item>
 
     <dimen name="dialpad_line_divider_height">3px</dimen>
-    <!-- Audio route dimentions -->
+<dimen name="dialing_popup_width">780px</dimen> 
+<dimen name="dialing_popup_pic_width">120px</dimen>
+    <dimen name="dialing_popup_pic_margin">60px</dimen>
+    <dimen name="dialing_popup_name_margin">30px</dimen>
+    <dimen name="dialing_popup_name_width">522px</dimen>
+    <dimen name="dialing_popup_name_height">60px</dimen>
+    <dimen name="dialing_popup_name_textsize">50px</dimen>
+    <dimen name="dialing_popup_type_textsize">38px</dimen>
+    <dimen name="dialing_popup_type_height">45.6px</dimen>
+    <dimen name="dialing_popup_state_height">45.6px</dimen>
+    <dimen name="dialing_popup_state_textsize">38px</dimen>
+    <dimen name="dialing_popup_state_margin">10px</dimen>
+    <dimen name="dialing_popup_btn_size">90px</dimen>
+    <dimen name="dialing_popup_btn1_margin">60px</dimen>
+    <dimen name="dialing_popup_btn_margin_top">238px</dimen>
+    <dimen name="dialing_popup_keyboard_margin_bottom">90px</dimen>
+    <dimen name="dialing_popup_btn_interval">90px</dimen>
+    <dimen name="dialing_popup_btn_margin_bottom">80px</dimen>
+    <dimen name="dialing_popup_divider_height">1px</dimen>
+    <dimen name="dialing_popup_keypad_width">660px</dimen>
+    <dimen name="dialing_popup_number_textsize">60px</dimen>
+    <dimen name="dialing_popup_number_text_height">72px</dimen>
+    <dimen name="dialing_popup_number_text_margin_top">60px</dimen>
+    <dimen name="dialing_popup_number_layout_height">690px</dimen>
+    <dimen name="dialing_popup_number_layout_width">600px</dimen>
+    <dimen name="dialing_popup_number_layout_margin_bottom">90px</dimen>
+    <dimen name="keypad_margin_x">30px</dimen>
+    
+<dimen name="keypad_margin_y">30px</dimen>
+    <dimen name="keypad_margin_middle">15px</dimen>
   <!--  <dimen name="audio_route_height">@dimen/control_bar_height</dimen>-->
    <!-- <dimen name="audio_route_content_padding">@dimen/list_item_padding</dimen>
     <dimen name="audio_route_icon_size">@dimen/primary_icon_size</dimen>
