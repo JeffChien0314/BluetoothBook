@@ -5,4 +5,16 @@
         <attr name="scaleItemCount" format="integer"/>
         <attr name="scaleWidth" format="dimension"/>
     </declare-styleable>
+
+    <!-- The configurable text for a keypad button. -->
+    <declare-styleable name="KeypadButton">
+        <!-- The keypad number, such as "1". -->
+        <attr name="numberText" format="string"/>
+
+        <!-- The letters below the number, such as "ABC". -->
+        <attr name="letterText" format="string"/>
+
+        <!-- An image that appears below the number, such as a voicemail icon. -->
+        <attr name="image" format="reference"/>
+    </declare-styleable>
 </resources>

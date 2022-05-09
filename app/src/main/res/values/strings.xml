@@ -103,7 +103,7 @@
     <string name="set_default_number">Set default phone number</string>
     <!-- Description for the default phone number of the contact [CHAR LIMIT=30] -->
     <string name="primary_number_description">
-        <xliff:g id="label" example="Mobile">%1$s</xliff:g>
+        <xliff:g example="Mobile" id="label">%1$s</xliff:g>
         " - Default"
     </string>
 
@@ -141,5 +141,7 @@
         <item>given_name</item>
         <item>family_name</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

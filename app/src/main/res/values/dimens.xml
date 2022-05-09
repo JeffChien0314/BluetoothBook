@@ -19,6 +19,8 @@
     <dimen name="avatar_icon_size">76dp</dimen>
     <dimen name="large_avatar_icon_size">96dp</dimen>
     <item name="letter_to_tile_ratio" format="fraction" type="fraction">67%</item>
+
+    <dimen name="dialpad_line_divider_height">3px</dimen>
     <!-- Audio route dimentions -->
   <!--  <dimen name="audio_route_height">@dimen/control_bar_height</dimen>-->
    <!-- <dimen name="audio_route_content_padding">@dimen/list_item_padding</dimen>

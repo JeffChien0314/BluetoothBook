@@ -31,4 +31,6 @@
         <item>#ff5722</item>
         <item>#757575</item>
     </array>
+
+    <color name="divider_color">#1AFFFFFF</color>
 </resources>

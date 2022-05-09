@@ -24,6 +24,7 @@ import com.ev.dialer.phonebook.service.BluetoothContactsService;
 import com.ev.dialer.phonebook.service.BluetoothRecentsService;
 import com.ev.dialer.phonebook.ui.calllog.RecentListFragment;
 import com.ev.dialer.phonebook.ui.contact.ContactListFragment;
+import com.ev.dialer.phonebook.ui.dialpad.DialpadFragment;
 import com.ev.dialer.phonebook.utils.LogUtils;
 
 import java.util.ArrayList;
@@ -371,7 +372,16 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     }
 
     private void showKeypadList() {
-
+        FragmentManager fManager = mActivity.getSupportFragmentManager();
+        FragmentTransaction fTransaction = fManager.beginTransaction();
+        Fragment fragment = fManager.findFragmentByTag(fragmentTag);
+        DialpadFragment dialpadFragment = DialpadFragment.newInstance();
+        if (fragment == null) {
+            fTransaction.add(R.id.content_layout, dialpadFragment, fragmentTag);
+        } else {
+            fTransaction.replace(R.id.content_layout, dialpadFragment, fragmentTag);
+        }
+        fTransaction.commitAllowingStateLoss();
     }
 
     private void hideFragment() {
