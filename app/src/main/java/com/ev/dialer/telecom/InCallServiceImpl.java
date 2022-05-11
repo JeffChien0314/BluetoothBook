@@ -53,14 +53,15 @@ public class InCallServiceImpl extends InCallService {
             super.onStateChanged(call, state);
             Log.d(TAG, "onStateChanged, state == " + state);
             switch (state) {
-                case Call.STATE_RINGING:
-                case Call.STATE_CONNECTING:
+              /*  case Call.STATE_RINGING:
+                case Call.STATE_CONNECTING:*/
                     //    break;
                 case Call.STATE_ACTIVE:// 通话中
-                    if (PhoneCallManager.getCallType() == CallType.CALL_OUT) {
-                        Intent intent=new Intent();
+                    Log.i(TAG, "onStateChanged: Call.STATE_ACTIVE");
+                    if (PhoneCallManager.getCallType() == CallType.CALL_OUT && state == Call.STATE_ACTIVE) {
+                        Intent intent = new Intent();
                         intent.setAction(CALL_STATE_CHANGE_ACTION);
-                        intent.putExtra("state",Call.STATE_ACTIVE);
+                        intent.putExtra("state", Call.STATE_ACTIVE);
                         sendBroadcast(intent);
                     }
                     break;

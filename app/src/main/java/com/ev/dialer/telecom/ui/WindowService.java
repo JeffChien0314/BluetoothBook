@@ -107,6 +107,7 @@ public class WindowService extends Service implements View.OnClickListener {
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(CALL_END_ACTION);
+        filter.addAction(CALL_STATE_CHANGE_ACTION);
         filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
         registerReceiver(myReciver, filter);
     }
