@@ -6,9 +6,12 @@ import android.telecom.Call;
 import android.telecom.VideoProfile;
 import android.util.Log;
 
+import com.ev.dialer.telecom.InCallServiceImpl;
+
 public class PhoneCallManager {
 
-    public static Call call;
+    public static Call mCall;
+    public static InCallServiceImpl.CallType mCallType= InCallServiceImpl.CallType.CALL_OUT;
     private Context context;
     private AudioManager audioManager;
 
@@ -17,12 +20,21 @@ public class PhoneCallManager {
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
+    public static void setCall(Call call, InCallServiceImpl.CallType callType) {
+        mCall = call;
+        mCallType = callType;
+    }
+
+    public static InCallServiceImpl.CallType getCallType(){
+        return mCallType;
+    }
+
     /**
      * 接听电话
      */
     public void answer() {
-        if (call != null) {
-            call.answer(VideoProfile.STATE_AUDIO_ONLY);
+        if (mCall != null) {
+            mCall.answer(VideoProfile.STATE_AUDIO_ONLY);
             openSpeaker();
         }
     }
@@ -31,8 +43,8 @@ public class PhoneCallManager {
      * 断开电话，包括来电时的拒接以及接听后的挂断
      */
     public void disconnect() {
-        if (call != null) {
-            call.disconnect();
+        if (mCall != null) {
+            mCall.disconnect();
         }
     }
 
@@ -52,9 +64,9 @@ public class PhoneCallManager {
 
     /**
      * 销毁资源
-     * */
+     */
     public void destroy() {
-        call = null;
+        mCall = null;
         context = null;
         audioManager = null;
     }

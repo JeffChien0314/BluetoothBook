@@ -16,24 +16,26 @@
             android:theme="@style/AppCompat_AppTheme">
             <!-- region provides dial UI -->
             <intent-filter>
-                <action android:name="android.intent.action.CALL"/>
-                <category android:name="android.intent.category.DEFAULT"/>
+                <action android:name="android.intent.action.CALL" />
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.DIAL" />
-                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <action android:name="android.intent.action.DIAL"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:scheme="tel"/>
+                <action android:name="android.intent.action.VIEW" />
+                <action android:name="android.intent.action.DIAL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="tel" />
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <!-- <intent-filter>
                  <action android:name="android.intent.action.SEARCH"/>
@@ -46,6 +48,15 @@
                             <category android:name="android.intent.category.BROWSABLE"/>
                             <data android:mimeType="vnd.android.cursor.dir/calls"/>
                         </intent-filter>-->
+        </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
         </activity>
 
         <receiver
@@ -69,22 +80,12 @@
              </intent-filter>-->
         </receiver>
 
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
         <service
             android:name="com.ev.dialer.telecom.dial.MyConnectionService"
             android:permission="android.permission.BIND_TELECOM_CONNECTION_SERVICE">
             <intent-filter>
                 <action android:name="android.telecom.ConnectionService" />
             </intent-filter>
-
         </service>
         <service
             android:name="com.ev.dialer.telecom.InCallServiceImpl"
@@ -97,13 +98,32 @@
                 android:name="android.telecom.IN_CALL_SERVICE_RINGING"
                 android:value="true" />
             <meta-data
+                android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
+                android:value="true" />
+
+            <meta-data
                 android:name="android.telecom.IN_CALL_SERVICE_UI"
                 android:value="true" />
             <meta-data
-                android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
-                android:value="true"/>
+                android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
+                android:value="true" />
+
+
+            <!-- <intent-filter>
+                 <action android:name="android.telecom.InCallService" />
+             </intent-filter>
+             <meta-data
+                 android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                 android:value="true" />
+             <meta-data
+                 android:name="android.telecom.IN_CALL_SERVICE_UI"
+                 android:value="true" />
+             <meta-data
+                 android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
+                 android:value="true"/>-->
         </service>
-        <service android:name="com.ev.dialer.telecom.ui.WindowService"/>
+
+        <service android:name="com.ev.dialer.telecom.ui.WindowService" />
         <service android:name="com.ev.dialer.phonebook.service.BluetoothRecentsService" />
         <service android:name="com.ev.dialer.phonebook.service.BluetoothContactsService" />
 
@@ -123,7 +143,7 @@
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
@@ -137,18 +157,18 @@
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+  <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+  <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="com.android.voicemail.permission.ADD_VOICEMAIL" />
     <uses-permission android:name="com.android.voicemail.permission.WRITE_VOICEMAIL" />
     <uses-permission android:name="com.android.voicemail.permission.READ_VOICEMAIL" />
     <uses-permission android:name="android.permission.ALLOW_ANY_CODEC_FOR_PLAYBACK" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+  <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

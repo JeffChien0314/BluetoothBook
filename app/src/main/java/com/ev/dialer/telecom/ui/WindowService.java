@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.Process;
+import android.telecom.Call;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -27,6 +31,9 @@ import com.ev.dialer.telecom.InCallServiceImpl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import static com.ev.dialer.telecom.Constants.Action.CALL_END_ACTION;
+import static com.ev.dialer.telecom.Constants.Action.CALL_STATE_CHANGE_ACTION;
 
 public class WindowService extends Service implements View.OnClickListener {
     private final static String TAG = "WindowService";
@@ -47,13 +54,27 @@ public class WindowService extends Service implements View.OnClickListener {
     private static final int ANSWER_CALL_TIME_OUT = 5 * 1000;
     private static final int CALLING_TIMER_INTERVAL = 1000;
     private int mCallingDuration = 0;
-    private final static String CALL_END_ACTION = "com.action.CallEnd";
+
     private BroadcastReceiver myReciver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(CALL_END_ACTION)) {
-                WindowService.this.stopSelf();
+            switch (intent.getAction()) {
+                case CALL_END_ACTION:
+                    WindowService.this.stopSelf();
+                    break;
+                case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
+
+                    break;
+                case CALL_STATE_CHANGE_ACTION:
+                    int state = intent.getIntExtra("state", -1);
+                    if (PhoneCallManager.getCallType() == InCallServiceImpl.CallType.CALL_OUT &&
+                            state == Call.STATE_ACTIVE) {
+                        mHandler.sendEmptyMessage(MSG_ANSWER_CALL);
+                    }
+                    break;
+
             }
+
         }
     };
 
@@ -86,6 +107,7 @@ public class WindowService extends Service implements View.OnClickListener {
     private void registerReceiver() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(CALL_END_ACTION);
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
         registerReceiver(myReciver, filter);
     }
 
@@ -132,12 +154,13 @@ public class WindowService extends Service implements View.OnClickListener {
         if (mCallType == InCallServiceImpl.CallType.CALL_IN) {// 打进的电话
             mHandler.sendEmptyMessageDelayed(MSG_ANSWER_CALL, ANSWER_CALL_TIME_OUT);
         } else if (mCallType == InCallServiceImpl.CallType.CALL_OUT) {// 打出的电话
+            mAnswerBtn.setVisibility(View.INVISIBLE);
             mPhoneCallManager.openSpeaker();
         }
     }
 
     private void onshow() {
-        mName.setText(TextUtils.isEmpty(mPhoneNumber) ? "unknown number" : mPhoneNumber);
+        mName.setText(TextUtils.isEmpty(mPhoneNumber) ? "15098671775" : mPhoneNumber);
         mType.setText(getCallType());
         //  mInputNumber.setText("input");
         if (mCallType == InCallServiceImpl.CallType.CALL_OUT) {
@@ -200,15 +223,29 @@ public class WindowService extends Service implements View.OnClickListener {
     @Override
     public void onDestroy() {
         hide();
+        unregisterReceiver(myReciver);
         super.onDestroy();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return new MyBinder();
     }
 
+
+    public class MyBinder extends Binder {
+        /**
+         * Returns a reference to {@link InCallServiceImpl}. Any process other than Dialer
+         * process won't be able to get a reference.
+         */
+        public WindowService getService() {
+            if (getCallingPid() == Process.myPid()) {
+                return WindowService.this;
+            }
+            return null;
+        }
+    }
 
     @Override
     public void onClick(View v) {

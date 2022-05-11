@@ -22,8 +22,6 @@ public class BTBookApplication extends Application {
         InMemoryPhoneBook.init(this);
         UiCallManager.init(this);
         InCallNotificationController.init(this);
-
     }
-
 
 }

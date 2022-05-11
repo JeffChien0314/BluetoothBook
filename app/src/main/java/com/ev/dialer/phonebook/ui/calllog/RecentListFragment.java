@@ -6,9 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ev.dialer.phonebook.R;
-import com.ev.dialer.btManager.BtManager;
 import com.ev.dialer.Constants;
+import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.ui.common.entity.UiCallLog;
 import com.ev.dialer.telecom.UiCallManager;
 
@@ -70,7 +69,9 @@ public class RecentListFragment extends Fragment {
                     //BtManager.getInstance(getActivity()).connectAudio(phoneNumber);
                    /* Intent intent=new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+"13954571409"));
                     startActivity(intent);*/
-                    //   UiCallManager.get().placeCall("13954571409");
+                    if (Constants.IS_DEBUG) {
+                        UiCallManager.get().placeCall("13954571409");
+                    } else
                     UiCallManager.get().placeCall(((UiCallLog) adapter.getItem(position)).getNumber());//13954571409
                 } catch (Exception e) {
                     e.printStackTrace();

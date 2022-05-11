@@ -151,7 +151,12 @@ public class PhoneBookActivity extends AppCompatActivity {
             TelecomManager manger = (TelecomManager) context.getSystemService(TELECOM_SERVICE);
             if (manger != null) {
                 String name = manger.getDefaultDialerPackage();
+                try {
                 return name.equals(context.getPackageName());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
         }
         return false;

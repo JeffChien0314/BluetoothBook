@@ -32,6 +32,9 @@ import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.common.PhoneCallManager;
 import com.ev.dialer.telecom.ui.WindowService;
 
+import static com.ev.dialer.telecom.Constants.Action.CALL_END_ACTION;
+import static com.ev.dialer.telecom.Constants.Action.CALL_STATE_CHANGE_ACTION;
+
 
 /**
  * An implementation of {@link InCallService}. This service is bounded by android telecom and
@@ -50,11 +53,20 @@ public class InCallServiceImpl extends InCallService {
             super.onStateChanged(call, state);
             Log.d(TAG, "onStateChanged, state == " + state);
             switch (state) {
+                case Call.STATE_RINGING:
+                case Call.STATE_CONNECTING:
+                    //    break;
                 case Call.STATE_ACTIVE:// 通话中
+                    if (PhoneCallManager.getCallType() == CallType.CALL_OUT) {
+                        Intent intent=new Intent();
+                        intent.setAction(CALL_STATE_CHANGE_ACTION);
+                        intent.putExtra("state",Call.STATE_ACTIVE);
+                        sendBroadcast(intent);
+                    }
                     break;
                 case Call.STATE_DISCONNECTED: // 通话结束
                     Intent intent = new Intent();
-                    intent.setAction("com.action.CallEnd");
+                    intent.setAction(CALL_END_ACTION);
                     sendBroadcast(intent);
                     break;
             }
@@ -73,19 +85,21 @@ public class InCallServiceImpl extends InCallService {
             this.setAudioRoute(CallAudioState.ROUTE_SPEAKER);
         }
         call.registerCallback(callback);
-        PhoneCallManager.call = call; // 传入call
+
         CallType callType = null;
         if (call.getState() == Call.STATE_RINGING) {
             callType = CallType.CALL_IN;
         } else if (call.getState() == Call.STATE_CONNECTING) {
             callType = CallType.CALL_OUT;
         }
+        PhoneCallManager.setCall(call, callType); // 传入call
         if (callType != null) {
             Call.Details details = call.getDetails();
             String phoneNumber = details.getHandle().toString().substring(4)
                     .replaceAll("%20", ""); // 去除拨出电话中的空格
+
             Intent intent = new Intent(getBaseContext(), WindowService.class);
-           // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra(Intent.EXTRA_MIME_TYPES, callType);
             intent.putExtra(Intent.EXTRA_PHONE_NUMBER, phoneNumber);
             Log.d(TAG, "onCallAdded, callType : " + callType + ", phoneNumber : " + phoneNumber);
@@ -98,7 +112,7 @@ public class InCallServiceImpl extends InCallService {
         super.onCallRemoved(call);
         Log.d(TAG, "onCallRemoved");
         call.unregisterCallback(callback);
-        PhoneCallManager.call = null;
+        PhoneCallManager.mCall = null;
     }
 
     public enum CallType {
