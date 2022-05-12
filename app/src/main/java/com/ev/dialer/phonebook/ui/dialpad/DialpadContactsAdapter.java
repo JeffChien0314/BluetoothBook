@@ -1,7 +1,6 @@
 package com.ev.dialer.phonebook.ui.dialpad;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,19 +10,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ev.dialer.Constants;
 import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.Contact;
-import com.ev.dialer.phonebook.common.I18nPhoneNumberWrapper;
-import com.ev.dialer.phonebook.common.PhoneNumber;
 import com.ev.dialer.phonebook.ui.ContactsItem;
-import com.ev.dialer.phonebook.utils.LogUtils;
 import com.ev.dialer.phonebook.utils.TelecomUtils;
 import com.ev.dialer.phonebook.utils.ViewUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class DialpadContactsAdapter extends RecyclerView.Adapter<DialpadContactsAdapter.ViewHolder> {
