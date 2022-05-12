@@ -51,6 +51,8 @@
     
 <dimen name="keypad_margin_y">30px</dimen>
     <dimen name="keypad_margin_middle">15px</dimen>
+
+    <dimen name="dialpad_contact_list_divider">10px</dimen>
   <!--  <dimen name="audio_route_height">@dimen/control_bar_height</dimen>-->
    <!-- <dimen name="audio_route_content_padding">@dimen/list_item_padding</dimen>
     <dimen name="audio_route_icon_size">@dimen/primary_icon_size</dimen>

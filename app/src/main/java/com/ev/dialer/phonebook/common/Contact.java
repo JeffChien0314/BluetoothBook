@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
 import android.text.TextUtils;
@@ -40,6 +41,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
     private Uri mAvatarThumbnailUri;
     private Uri mAvatarUri;
     private String mLookupKey;
+    private String mPhoneNumber;//不带区号的电话号
     private boolean mIsVoiceMail;
     private PhoneNumber mPrimaryPhoneNumber;
 
@@ -59,7 +61,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
     public Contact() {
     }
 
-    public Contact(long mId, boolean mIsStarred, int mPinnedPosition, List<PhoneNumber> mPhoneNumbers, String mDisplayName, String mAltDisplayName, @Nullable Uri mAvatarThumbnailUri, @Nullable Uri mAvatarUri, String mLookupKey, boolean mIsVoiceMail, @Nullable PhoneNumber mPrimaryPhoneNumber, String mPinyin, String mFirstLetter) {
+    public Contact(long mId, boolean mIsStarred, int mPinnedPosition, List<PhoneNumber> mPhoneNumbers, String mDisplayName, String mAltDisplayName, @Nullable Uri mAvatarThumbnailUri, @Nullable Uri mAvatarUri, String mLookupKey, String mPhoneNumber,boolean mIsVoiceMail, @Nullable PhoneNumber mPrimaryPhoneNumber, String mPinyin, String mFirstLetter) {
         this.mId = mId;
         this.mIsStarred = mIsStarred;
         this.mPinnedPosition = mPinnedPosition;
@@ -69,6 +71,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
         this.mAvatarThumbnailUri = mAvatarThumbnailUri;
         this.mAvatarUri = mAvatarUri;
         this.mLookupKey = mLookupKey;
+        this.mPhoneNumber = mPhoneNumber;
         this.mIsVoiceMail = mIsVoiceMail;
         this.mPrimaryPhoneNumber = mPrimaryPhoneNumber;
         this.mPinyin = mPinyin;
@@ -84,6 +87,9 @@ public class Contact implements Parcelable, Comparable<Contact> {
         int avatarUriColumn = cursor.getColumnIndex("photo_uri");
         int avatarThumbnailColumn = cursor.getColumnIndex("photo_thumb_uri");
         int lookupKeyColumn = cursor.getColumnIndex("lookup");
+        int numberIdx = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+        String phoneNumber = cursor.getString(numberIdx);
+
         Contact contact = new Contact();
         contact.mId = cursor.getLong(contactIdColumn);
         contact.mDisplayName = cursor.getString(displayNameColumn);
@@ -108,12 +114,13 @@ public class Contact implements Parcelable, Comparable<Contact> {
             Log.w("CD.Contact", "Look up key is null. Fallback to use display name");
             contact.mLookupKey = contact.mDisplayName;
         }
+        contact.mPhoneNumber = phoneNumber;
         Log.i(TAG, "onChanged: contact=" + contact.getAltDisplayName());
         Log.i(TAG, "onChanged: getDisplayName=" + contact.getDisplayName());
         Log.i(TAG, "onChanged: getAvatarUri=" + contact.getAvatarUri());
         Log.i(TAG, "onChanged: getId=" + contact.getId());
         Log.i(TAG, "onChanged: getLookupKey=" + contact.getLookupKey());
-        Log.i(TAG, "onChanged: getLookupKey=" + contact.getLookupKey());
+        Log.i(TAG, "onChanged: getPhoneNumber=" + contact.getPhoneNumber());
         Log.i(TAG, "onChanged: getNumbers=" + contact.getNumbers());
         for (PhoneNumber number1 : contact.getNumbers()) {
             Log.i(TAG, "onChanged: number=" + number1);
@@ -166,6 +173,10 @@ public class Contact implements Parcelable, Comparable<Contact> {
 
     public String getLookupKey() {
         return this.mLookupKey;
+    }
+
+    public String getPhoneNumber() {
+        return this.mPhoneNumber;
     }
 
     public Uri getLookupUri() {
@@ -256,6 +267,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
         dest.writeParcelable(this.mAvatarThumbnailUri, 0);
         dest.writeParcelable(this.mAvatarUri, 0);
         dest.writeString(this.mLookupKey);
+        dest.writeString(this.mPhoneNumber);
         dest.writeBoolean(this.mIsVoiceMail);
         dest.writeString(this.mPinyin);
         dest.writeString(this.mFirstLetter);
@@ -282,6 +294,7 @@ public class Contact implements Parcelable, Comparable<Contact> {
         contact.mAvatarThumbnailUri = (Uri) source.readParcelable(Uri.class.getClassLoader());
         contact.mAvatarUri = (Uri) source.readParcelable(Uri.class.getClassLoader());
         contact.mLookupKey = source.readString();
+        contact.mPhoneNumber = source.readString();
         contact.mIsVoiceMail = source.readBoolean();
         contact.mPinyin = source.readString();
         contact.mFirstLetter = source.readString();

@@ -24,6 +24,7 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.ev.dialer.phonebook.common.Contact;
 import com.ev.dialer.phonebook.common.LetterTileDrawable;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
@@ -219,14 +220,14 @@ public class TelecomUtils {
 
     public static boolean isAirplaneModeOn(Context context) {
         return System.getInt(context.getContentResolver(), "airplane_mode_on", 0) != 0;
-    }
+    }*/
 
     public static void setContactBitmapAsync(Context context, ImageView icon, @Nullable Contact contact, @Nullable String fallbackDisplayName) {
         Uri avatarUri = contact != null ? contact.getAvatarUri() : null;
         String displayName = contact != null ? contact.getDisplayName() : fallbackDisplayName;
         setContactBitmapAsync(context, icon, avatarUri, displayName);
     }
-*/
+
     public static void setContactBitmapAsync(Context context, ImageView icon, Uri avatarUri, String displayName) {
         LetterTileDrawable letterTileDrawable = createLetterTile(context, displayName);
         if (avatarUri != null) {

@@ -27,7 +27,8 @@
             android:id="@+id/calling_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center">
+            android:gravity="center"
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/dial_member"
@@ -67,8 +68,6 @@
                 android:layout_height="90px"
                 android:layout_alignParentRight="true"
                 android:layout_marginTop="10px"
-                android:focusableInTouchMode="true"
-                android:focusable="true"
                 android:background="@drawable/selector_icon_decline_btn" />
 
         </RelativeLayout>

@@ -51,7 +51,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
                 phonenumbers.add(number);
                 phonenumbers.add(number1);
                 phonenumbers.add(number2);
-                Contact contact=new Contact(12344579l,false,0,phonenumbers,"tinatina","mAltDisplay",null,null,"lookupkey",false,null,"zhangtingting","z");
+                Contact contact=new Contact(12344579l,false,0,phonenumbers,"tinatina","mAltDisplay",null,null,"lookupkey","data1",false,null,"zhangtingting","z");
                 mContactList.add(contact);
             }
             for (int i=0;i<5;i++){
@@ -66,7 +66,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
                 phonenumbers.add(number);
                 phonenumbers.add(number1);
                 phonenumbers.add(number2);
-                Contact contact=new Contact(12344579l,false,0,phonenumbers,"tinatina","mAltDisplay",null,null,"lookupkey",false,null,"tingtingzhang","t");
+                Contact contact=new Contact(12344579l,false,0,phonenumbers,"tinatina","mAltDisplay",null,null,"lookupkey","data1",false,null,"tingtingzhang","t");
                 mContactList.add(contact);
             }
             Collections.sort(mContactList);
