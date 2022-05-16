@@ -1,5 +1,7 @@
 package com.ev.dialer.telecom.ui;
 
+import android.animation.AnimatorInflater;
+import android.animation.ValueAnimator;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,21 +14,29 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Process;
+import android.provider.Settings;
 import android.telecom.Call;
 import android.telephony.TelephonyManager;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.ev.dialer.Constants;
+import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.PhoneCallManager;
+import com.ev.dialer.phonebook.ui.common.KeypadView;
 import com.ev.dialer.telecom.InCallServiceImpl;
 
 import androidx.annotation.NonNull;
@@ -35,11 +45,12 @@ import androidx.annotation.Nullable;
 import static com.ev.dialer.telecom.Constants.Action.CALL_END_ACTION;
 import static com.ev.dialer.telecom.Constants.Action.CALL_STATE_CHANGE_ACTION;
 
-public class WindowService extends Service implements View.OnClickListener {
+public class WindowService extends Service implements View.OnClickListener,KeypadView.KeypadCallback {
     private final static String TAG = "WindowService";
     private WindowManager mWindowManager = null;
     private WindowManager.LayoutParams mParams;
     private View mView, mkeypadView;
+    KeypadView mNumberView;
     private ImageView mAnswerBtn, mCancelBtn, mDialpad;
     private TextView mName, mState, mType, mInputNumber;
     private boolean isFullviewShowing = false, isKeypadShowing = false;
@@ -54,6 +65,12 @@ public class WindowService extends Service implements View.OnClickListener {
     private static final int ANSWER_CALL_TIME_OUT = 5 * 1000;
     private static final int CALLING_TIMER_INTERVAL = 1000;
     private int mCallingDuration = 0;
+
+    private boolean mDTMFToneEnabled;
+    private static final int PLAY_DTMF_TONE = 1;
+    private int mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
+    private final StringBuffer mNumber = new StringBuffer();
+    private ValueAnimator mInputMotionAnimator;
 
     private BroadcastReceiver myReciver = new BroadcastReceiver() {
         @Override
@@ -122,6 +139,9 @@ public class WindowService extends Service implements View.OnClickListener {
         screenHeight = size.y;
         Log.d(TAG, "width:" + screenWidth + ", height:" + screenHeight);
         mView = LayoutInflater.from(this).inflate(R.layout.popup_layout, null, false);
+        mNumberView=new KeypadView(this);
+       ((FrameLayout)mView.findViewById(R.id.number_layout)).addView(mNumberView);
+        mNumberView.setKeypadCallback(this);
         mParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -139,6 +159,8 @@ public class WindowService extends Service implements View.OnClickListener {
         mType = mView.findViewById(R.id.text_type);
         mkeypadView = mView.findViewById(R.id.keypad_layout);
         mInputNumber = mView.findViewById(R.id.input_number);
+        mInputMotionAnimator = (ValueAnimator) AnimatorInflater.loadAnimator(this,
+                R.animator.scale_down);
         setListener();
     }
 
@@ -198,6 +220,9 @@ public class WindowService extends Service implements View.OnClickListener {
 
     private void initData(Intent intent) {
         if (Constants.IS_DEBUG) return;
+        mDTMFToneEnabled = Settings.System.getInt(getContentResolver(),
+                Settings.System.DTMF_TONE_WHEN_DIALING, 1) == PLAY_DTMF_TONE;
+        L.d(TAG, "DTMF tone enabled = %s", String.valueOf(mDTMFToneEnabled));
         if (null != intent) {
             mCallType = (InCallServiceImpl.CallType) intent.getSerializableExtra(Intent.EXTRA_MIME_TYPES);
             mPhoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
@@ -228,12 +253,103 @@ public class WindowService extends Service implements View.OnClickListener {
         super.onDestroy();
     }
 
+
+    static final SparseArray<Character> sDialValueMap = new SparseArray<>();
+
+    static {
+        sDialValueMap.put(KeyEvent.KEYCODE_1, '1');
+        sDialValueMap.put(KeyEvent.KEYCODE_2, '2');
+        sDialValueMap.put(KeyEvent.KEYCODE_3, '3');
+        sDialValueMap.put(KeyEvent.KEYCODE_4, '4');
+        sDialValueMap.put(KeyEvent.KEYCODE_5, '5');
+        sDialValueMap.put(KeyEvent.KEYCODE_6, '6');
+        sDialValueMap.put(KeyEvent.KEYCODE_7, '7');
+        sDialValueMap.put(KeyEvent.KEYCODE_8, '8');
+        sDialValueMap.put(KeyEvent.KEYCODE_9, '9');
+        sDialValueMap.put(KeyEvent.KEYCODE_0, '0');
+        sDialValueMap.put(KeyEvent.KEYCODE_STAR, '*');
+        sDialValueMap.put(KeyEvent.KEYCODE_POUND, '#');
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return new MyBinder();
     }
 
+    @Override
+    public void onKeypadKeyLongPressed(int keycode) {
+       /* switch (keycode) {
+            case KeyEvent.KEYCODE_0:
+                removeLastDigit();
+                appendDialedNumber("+");
+                break;
+            case KeyEvent.KEYCODE_STAR:
+                removeLastDigit();
+                appendDialedNumber(",");
+                break;
+            *//*case KeyEvent.KEYCODE_1:
+                UiCallManager.get().callVoicemail();
+                break;*//*
+            default:
+                break;
+        }*/
+    }
+@Override
+    public void onKeypadKeyDown(int keycode) {
+        String digit = sDialValueMap.get(keycode).toString();
+        appendDialedNumber(digit);
+
+        if (mDTMFToneEnabled) {
+            mCurrentlyPlayingTone = keycode;
+         //   playTone(keycode);
+        }
+    }
+
+    @Override
+    public void onKeypadKeyUp(int keycode) {
+        if (mDTMFToneEnabled && keycode == mCurrentlyPlayingTone) {
+            mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
+          //  stopAllTones();
+        }
+    }
+
+    void appendDialedNumber(String number) {
+        mNumber.append(number);
+       presentDialedNumber(mNumber);
+
+       /*  if (TextUtils.isEmpty(number)) {
+            return;
+        }
+
+        if (mInputMotionAnimator != null) {
+            final String currentText = dialNumber.getText().toString();
+            final SpannableString spannableString = new SpannableString(currentText);
+            mInputMotionAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    float textSize =
+                            (float) valueAnimator.getAnimatedValue() * dialNumber.getTextSize();
+                    mScaleSpan.setTextSize(textSize);
+                    spannableString.setSpan(mScaleSpan, currentText.length() - number.length(),
+                            currentText.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                    dialNumber.setText(spannableString, TextView.BufferType.SPANNABLE);
+                }
+            });
+            mInputMotionAnimator.start();
+        }*/
+    }
+
+    void presentDialedNumber(@NonNull StringBuffer number){
+        mInputNumber.setText(number);
+    }
+
+    void removeLastDigit() {
+        if (mNumber.length() != 0) {
+            mNumber.deleteCharAt(mNumber.length() - 1);
+        }
+//        presentDialedNumber();
+    }
 
     public class MyBinder extends Binder {
         /**

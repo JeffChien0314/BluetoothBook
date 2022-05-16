@@ -35,10 +35,11 @@ import androidx.fragment.app.Fragment;
 
 import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
+import com.ev.dialer.phonebook.ui.common.KeypadView;
 
 /** Fragment that controls the dialpad. */
 public abstract class AbstractDialpadFragment extends Fragment implements
-        KeypadFragment.KeypadCallback {
+        KeypadView.KeypadCallback {
     private static final String TAG = "AbsDialpadFragment";
     private static final String DIAL_NUMBER_KEY = "DIAL_NUMBER_KEY";
     private static final int PLAY_DTMF_TONE = 1;
@@ -121,7 +122,7 @@ public abstract class AbstractDialpadFragment extends Fragment implements
     }
 
     @Override
-    public void onKeypadKeyDown(@KeypadFragment.DialKeyCode int keycode) {
+    public void onKeypadKeyDown(@KeypadView.DialKeyCode int keycode) {
         String digit = sDialValueMap.get(keycode).toString();
         appendDialedNumber(digit);
 
@@ -132,7 +133,7 @@ public abstract class AbstractDialpadFragment extends Fragment implements
     }
 
     @Override
-    public void onKeypadKeyUp(@KeypadFragment.DialKeyCode int keycode) {
+    public void onKeypadKeyUp(@KeypadView.DialKeyCode int keycode) {
         if (mDTMFToneEnabled && keycode == mCurrentlyPlayingTone) {
             mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
             stopAllTones();

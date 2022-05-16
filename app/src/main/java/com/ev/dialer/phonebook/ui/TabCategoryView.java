@@ -46,7 +46,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     private static final String fragmentTag = "FragmentTag";
     private Dialog dialog;
     //  private HashMap<String, List<VCardEntry>> listHashMap = new HashMap<>();
-    public final int MESSAGE_SHOWDIALOG = 0;
+    public static final int MESSAGE_SHOWDIALOG = 0;
     public static final int MESSAGE_HIDEDIALOG = 1;
 
     public final int MESSAGE_SHOWRECENTLIST = 2;
@@ -60,14 +60,14 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             super.handleMessage(msg);
             switch (msg.what) {
                 case MESSAGE_SHOWDIALOG:
-                    showProcessDialog();
                     removeMessages(MESSAGE_HIDEDIALOG);
-                    sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, MESSAGE_SYNC_TIMEOUT);
+                  //  sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, MESSAGE_SYNC_TIMEOUT);
                     break;
                 case MESSAGE_HIDEDIALOG:
                     hideProcessDialog();
                     break;
                 case MESSAGE_SHOWRECENTLIST:
+                   // showProcessDialog();
                     showRecentsList();
                     break;
                 case MESSAGE_SHOWCONTACTLIST:

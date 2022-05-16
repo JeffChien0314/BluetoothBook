@@ -36,6 +36,8 @@
         <Button
             android:id="@+id/messages"
             style="@style/BtnStyle"
+            
+android:visibility="gone"
             android:text="@string/contact_messages">
         </Button>
 

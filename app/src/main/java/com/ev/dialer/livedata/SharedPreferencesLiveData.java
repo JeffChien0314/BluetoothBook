@@ -23,6 +23,7 @@ import android.text.TextUtils;
 
 import com.ev.dialer.log.L;
 
+import androidx.annotation.StringRes;
 import androidx.lifecycle.LiveData;
 
 /**
@@ -46,6 +47,10 @@ public class SharedPreferencesLiveData extends LiveData<SharedPreferences> {
                 updateSharedPreferences();
             }
         };
+    }
+
+    public SharedPreferencesLiveData(Context context, @StringRes int key) {
+        this(context, context.getString(key));
     }
 
     @Override

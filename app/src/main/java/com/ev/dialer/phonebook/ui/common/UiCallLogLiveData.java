@@ -122,7 +122,6 @@ public class UiCallLogLiveData extends MediatorLiveData<List<UiCallLog>> {
                 uiCallLogs.add(uiCallLog);
                 continue;
             }
-
             Contact contact = inMemoryPhoneBook.lookupContactEntry(number);
             String title;
             if (contact != null && contact.getDisplayName() != null) {
@@ -132,7 +131,7 @@ public class UiCallLogLiveData extends MediatorLiveData<List<UiCallLog>> {
             } else {
                 title = "mContext.getString(R.string.unknown)";
             }
-            Log.i(TAG, "convert: title="+title);
+           // Log.i(TAG, "convert: title="+title);
             PhoneNumber phoneNumber = contact != null ? contact.getPhoneNumber(number) : null;
 
             UiCallLog uiCallLog = new UiCallLog(
@@ -143,11 +142,11 @@ public class UiCallLogLiveData extends MediatorLiveData<List<UiCallLog>> {
                     phoneCallLog.getAllCallRecords());
             Log.i(TAG, "convert:  title="+title);
 
-            Log.i(TAG, "convert:  text="+uiCallLog.getText());
-            Log.i(TAG, "convert:  number="+number);
-            Log.i(TAG, "convert:  getAvatarUri="+uiCallLog.getAvatarUri());
-            Log.i(TAG, "convert:  getMostRecentCallEndTimestamp="+uiCallLog.getMostRecentCallEndTimestamp());
-            Log.i(TAG, "convert:  getMostRecentCallType="+uiCallLog.getMostRecentCallType());
+          //  Log.i(TAG, "convert:  text="+uiCallLog.getText());
+          //  Log.i(TAG, "convert:  number="+number);
+          //  Log.i(TAG, "convert:  getAvatarUri="+uiCallLog.getAvatarUri());
+          //  Log.i(TAG, "convert:  getMostRecentCallEndTimestamp="+uiCallLog.getMostRecentCallEndTimestamp());
+          //  Log.i(TAG, "convert:  getMostRecentCallType="+uiCallLog.getMostRecentCallType());
 
 
             uiCallLogs.add(uiCallLog);

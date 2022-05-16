@@ -25,11 +25,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ev.dialer.Constants;
+import com.ev.dialer.livedata.FutureData;
 import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.Contact;
 import com.ev.dialer.phonebook.common.I18nPhoneNumberWrapper;
 import com.ev.dialer.phonebook.common.PhoneNumber;
+import com.ev.dialer.phonebook.ui.common.KeypadView;
 import com.ev.dialer.phonebook.ui.common.SpaceItemDecoration;
 import com.ev.dialer.phonebook.ui.contact.ContactListViewModel;
 import com.ev.dialer.phonebook.utils.TelecomUtils;
@@ -83,7 +85,7 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
 
     private ToneGenerator mToneGenerator;
     private DialpadContactsAdapter dialpadContactsAdapter;
-    private List<Contact> mContactList = new ArrayList<>();
+    private FutureData<List<Contact>>  mContactList;
     private List<Contact> mSearchContactList = new ArrayList<>();
     private List<Contact> mTempSearchContactList = new ArrayList<>();
 
@@ -143,13 +145,13 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
             @Override
             public void onClick(View v) {
                 mTempSearchContactList.clear();
-                mTempSearchContactList.addAll(mContactList);
+                mTempSearchContactList.addAll(mContactList.getData());
                 DialpadFragment.this.removeLastDigit();
             }
         });
         deleteButton.setOnLongClickListener(v -> {
             mTempSearchContactList.clear();
-            mTempSearchContactList.addAll(mContactList);
+            mTempSearchContactList.addAll(mContactList.getData());
             clearDialedNumber();
             return true;
         });
@@ -198,29 +200,34 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
             Contact contact3 = new Contact(0, false, 0, phonenumbers, "Person", null, null, null, null, "406 566-0175", false, null, "Person", "P");
             Contact contact4 = new Contact(0, false, 0, phonenumbers, "Person", null, null, null, null, "406 656-0175", false, null, "Person", "P");
 
-            mContactList.add(contact1);
-            mContactList.add(contact2);
-            mContactList.add(contact3);
-            mContactList.add(contact4);
+            mContactList=new FutureData<>(true, new ArrayList<>());
+            mContactList.getData().add(contact1);
+            mContactList.getData().add(contact2);
+            mContactList.getData().add(contact3);
+            mContactList.getData().add(contact4);
 
 
-            Collections.sort(mContactList);
+            Collections.sort(mContactList.getData());
+             mTempSearchContactList.addAll(mContactList.getData());
         } else {
             ContactListViewModel contactListViewModel = ViewModelProviders.of(this).get(
                     ContactListViewModel.class);
-            contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), new Observer<List<Contact>>() {
+            contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), new Observer<FutureData< List<Contact>>>() {
                 @Override
-                public void onChanged(List<Contact> contactList) {
-                    mContactList = contactList;
+                public void onChanged(FutureData<List<Contact>> listFutureData) {
+                    mContactList = listFutureData;
+                    mTempSearchContactList.clear();
+                    if(null!=mContactList.getData())
+                    mTempSearchContactList.addAll(mContactList.getData());
                 }
             });
         }
 
-        mTempSearchContactList.addAll(mContactList);
+
     }
 
     @Override
-    public void onKeypadKeyLongPressed(@KeypadFragment.DialKeyCode int keycode) {
+    public void onKeypadKeyLongPressed(@KeypadView.DialKeyCode int keycode) {
         switch (keycode) {
             case KeyEvent.KEYCODE_0:
                 removeLastDigit();
@@ -274,7 +281,7 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
 
             mSearchContactList.clear();
             if (dialNumber.getText().toString().length() > 1) {
-                for (Contact contact : mTempSearchContactList) {
+                for (Contact contact : mContactList.getData()) {
                     if (stringReplace(contact.getPhoneNumber()).contains(stringReplace(dialNumber.getText().toString()))) {
                         mSearchContactList.add(contact);
                     }

@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import com.android.vcard.VCardEntry;
 import com.ev.dialer.Constants;
 import com.ev.dialer.phonebook.R;
+import com.ev.dialer.phonebook.common.Contact;
+import com.ev.dialer.phonebook.ui.common.BaseFragment;
 import com.ev.dialer.phonebook.ui.common.LetterListView;
 import com.ev.dialer.phonebook.utils.LogUtils;
 
@@ -24,7 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 //import com.ev.dialer.phonebook.ui.calllog.LetterListView;
 
-public class ContactListFragment extends Fragment {
+public class ContactListFragment extends BaseFragment {
     private static final String TAG = ContactListFragment.class.getSimpleName();
     private View view;
     private RecyclerView contactListView;
@@ -66,7 +68,22 @@ public class ContactListFragment extends Fragment {
         if (!Constants.IS_DEBUG) {
             ContactListViewModel contactListViewModel = ViewModelProviders.of(this).get(
                     ContactListViewModel.class);
-            contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), adapter::setContactList);
+          //  contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), adapter::setContactList);
+
+            contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), contacts -> {
+                if (contacts.isLoading()) {
+                    showLoading();
+                } else if (contacts.getData() == null) {
+                    hideLoading();
+                  /*  showEmpty(Constants.INVALID_RES_ID, R.string.contact_list_empty,
+                            R.string.available_after_sync);*/
+                } else {
+                    hideLoading();
+                    adapter.setContactList((List<Contact>) contacts.getData());
+                //    showContent();
+
+                }
+            });
         }
 
 

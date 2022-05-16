@@ -19,9 +19,11 @@ package com.ev.dialer.phonebook.ui.calllog;
 import android.app.Application;
 import android.text.format.DateUtils;
 
-import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.livedata.CallHistoryLiveData;
+import com.ev.dialer.livedata.FutureData;
 import com.ev.dialer.livedata.HeartBeatLiveData;
+import com.ev.dialer.livedata.LiveDataFunctions;
+import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.phonebook.ui.common.UiCallLogLiveData;
 import com.ev.dialer.phonebook.ui.common.entity.UiCallLog;
 
@@ -36,6 +38,8 @@ import androidx.lifecycle.LiveData;
  */
 public class CallHistoryViewModel extends AndroidViewModel {
     private UiCallLogLiveData mUiCallLogLiveData;
+    private LiveData<FutureData<List<UiCallLog>>> mUiCallLogFutureData;
+
 
     public CallHistoryViewModel(@NonNull Application application) {
         super(application);
@@ -43,12 +47,21 @@ public class CallHistoryViewModel extends AndroidViewModel {
                 new HeartBeatLiveData(DateUtils.MINUTE_IN_MILLIS),
                 CallHistoryLiveData.newInstance(application.getApplicationContext()),
                 InMemoryPhoneBook.get().getContactsLiveData());
+
+        mUiCallLogFutureData = LiveDataFunctions.loadingSwitchMap(mUiCallLogLiveData,
+                input -> LiveDataFunctions.dataOf(input));
     }
+    /*
+     */
 
     /**
      * Returns the live data for call history list.
      */
-    public LiveData<List<UiCallLog>> getCallHistory() {
+  /*  public LiveData<List<UiCallLog>> getCallHistory() {
         return mUiCallLogLiveData;
+    }*/
+    /** Returns the {@link LiveData} for call history list {@link FutureData}. */
+     public LiveData<FutureData<List<UiCallLog>>> getCallHistory() {
+        return mUiCallLogFutureData;
     }
 }

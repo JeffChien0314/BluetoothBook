@@ -19,6 +19,8 @@ package com.ev.dialer.phonebook.ui.contact;
 import android.app.Application;
 import android.content.Context;
 
+import com.ev.dialer.livedata.FutureData;
+import com.ev.dialer.livedata.LiveDataFunctions;
 import com.ev.dialer.livedata.SharedPreferencesLiveData;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.Contact;
@@ -26,6 +28,7 @@ import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.widget.WorkerExecutor;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -44,6 +47,7 @@ public class ContactListViewModel extends AndroidViewModel {
 
     private final Context mContext;
     private final LiveData<List<Contact>> mSortedContactListLiveData;
+    private final LiveData<FutureData< List<Contact>>> mContactList;
 
     public ContactListViewModel(@NonNull Application application) {
         super(application);
@@ -55,13 +59,22 @@ public class ContactListViewModel extends AndroidViewModel {
         LiveData<List<Contact>> contactListLiveData = InMemoryPhoneBook.get().getContactsLiveData();
         mSortedContactListLiveData = new SortedContactListLiveData(
                 mContext, contactListLiveData, preferencesLiveData);
+        mContactList = LiveDataFunctions.loadingSwitchMap(mSortedContactListLiveData,
+                input -> LiveDataFunctions.dataOf(input));
     }
 
+   /* *//**
+     * Returns a live data which represents a list of all contacts.
+     *//*
+    public LiveData<List<Contact>> getAllContacts() {
+        return mSortedContactListLiveData;
+    }
+*/
     /**
      * Returns a live data which represents a list of all contacts.
      */
-    public LiveData<List<Contact>> getAllContacts() {
-        return mSortedContactListLiveData;
+    public LiveData<FutureData< List<Contact>>> getAllContacts() {
+        return mContactList;
     }
 
     private static class SortedContactListLiveData extends MediatorLiveData<List<Contact>> {

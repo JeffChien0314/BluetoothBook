@@ -137,6 +137,16 @@
     <!-- Title of family name [CHAR LIMIT=40]-->
     <string name="family_name_first_title">Last name</string>
 
+    
+<!-- Key of given name -->
+    <string name="given_name_first_key" translatable="false">given_name</string>
+    <!-- Key of family name -->
+    <string name="family_name_first_key" translatable="false">family_name</string>
+    <!-- Title of given name [CHAR LIMIT=40]-->
+    <string name="given_name_first_title">First name</string>
+    <!-- Title of family name [CHAR LIMIT=40]-->
+
+
     <string-array name="contact_order_entry_values">
         <item>given_name</item>
         <item>family_name</item>

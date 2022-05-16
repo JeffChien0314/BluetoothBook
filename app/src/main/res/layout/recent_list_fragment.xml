@@ -3,23 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    
-tools:context=".ui.calllog.RecentListFragment">
+    tools:context=".ui.calllog.RecentListFragment">
 
-    
-<androidx.recyclerview.widget.RecyclerView
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recents_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:divider="@color/transparent"
+        android:fadeScrollbars="false"
         android:paddingTop="60px"
         android:paddingRight="20px"
-        android:divider="@color/transparent"
-        android:scrollbars="vertical"
-        android:fadeScrollbars="false"
         android:scrollbarStyle="insideOverlay"
-        android:scrollbarThumbVertical="@drawable/contacts_list_scrollbar">
+        android:scrollbarThumbVertical="@drawable/contacts_list_scrollbar"
+        android:scrollbars="vertical">
 
-    
-</androidx.recyclerview.widget.RecyclerView>
+
+    </androidx.recyclerview.widget.RecyclerView>
 
 </RelativeLayout>
