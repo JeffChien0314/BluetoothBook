@@ -6,44 +6,36 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.android.vcard.VCardEntry;
 import com.ev.dialer.Constants;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.Contact;
-import com.ev.dialer.phonebook.ui.common.BaseFragment;
+import com.ev.dialer.phonebook.ui.common.BaseLoadingFragment;
 import com.ev.dialer.phonebook.ui.common.LetterListView;
+import com.ev.dialer.phonebook.ui.common.LoadingCallback;
 import com.ev.dialer.phonebook.utils.LogUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-//import com.ev.dialer.phonebook.ui.calllog.LetterListView;
 
-public class ContactListFragment extends BaseFragment {
+public class ContactListFragment extends BaseLoadingFragment {
     private static final String TAG = ContactListFragment.class.getSimpleName();
     private View view;
     private RecyclerView contactListView;
     private ContactsAdapter adapter;
     private LetterListView letterView;
-    private static List<VCardEntry> vCardEntryList = new ArrayList<>();
-    //  private List<ContactsItem> itemList = new ArrayList<>();
 
-
-    public static ContactListFragment newInstance() {
-        ContactListFragment contactListFragment = new ContactListFragment();
-        return contactListFragment;
+    public ContactListFragment(LoadingCallback callback) {
+        super(callback);
     }
 
-    public static ContactListFragment newInstance(List<VCardEntry> vCardEntryList) {
-        ContactListFragment contactListFragment = new ContactListFragment();
-        ContactListFragment.vCardEntryList = vCardEntryList;
+    public static ContactListFragment newInstance(LoadingCallback callback) {
+        ContactListFragment contactListFragment = new ContactListFragment(callback);
         return contactListFragment;
     }
 
@@ -68,7 +60,7 @@ public class ContactListFragment extends BaseFragment {
         if (!Constants.IS_DEBUG) {
             ContactListViewModel contactListViewModel = ViewModelProviders.of(this).get(
                     ContactListViewModel.class);
-          //  contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), adapter::setContactList);
+            //  contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), adapter::setContactList);
 
             contactListViewModel.getAllContacts().observe(getViewLifecycleOwner(), contacts -> {
                 if (contacts.isLoading()) {
@@ -80,7 +72,7 @@ public class ContactListFragment extends BaseFragment {
                 } else {
                     hideLoading();
                     adapter.setContactList((List<Contact>) contacts.getData());
-                //    showContent();
+                    //    showContent();
 
                 }
             });
@@ -115,7 +107,7 @@ public class ContactListFragment extends BaseFragment {
                 for (int i = 0; i < adapter.getContactList().size(); i++) {
                     if (letter.equalsIgnoreCase(adapter.getContactList().get(i).getFirstLetter())) {
                         contactListView.scrollToPosition(i);
-                     //   contactListView.setSelection(i); // 选择到首字母出现的位置
+                        //   contactListView.setSelection(i); // 选择到首字母出现的位置
                         return;
                     }
                 }

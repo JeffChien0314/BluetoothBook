@@ -4,7 +4,8 @@
 	android:layout_height="wrap_content"
 	android:drawable="@drawable/loading_icon"
 	android:fromDegrees="0"
-	android:toDegrees="360"
+	
+android:toDegrees="361"
 	android:pivotX="50%"
 	android:pivotY="50%"
 	android:repeatCount="-1"

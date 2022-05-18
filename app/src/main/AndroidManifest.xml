@@ -12,7 +12,6 @@
         <activity
             android:name="com.ev.dialer.phonebook.ui.PhoneBookActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:theme="@style/AppCompat_AppTheme">
             <!-- region provides dial UI -->
             <intent-filter>
@@ -50,15 +49,15 @@
                         </intent-filter>-->
         </activity>
 
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
+        <!--  <activity
+              android:name=".MainActivity"
+              android:exported="true"
+             >
+              <intent-filter>
+                  <action android:name="android.intent.action.MAIN" />
+              </intent-filter>
+          </activity>
+  -->
         <receiver
             android:name="com.ev.dialer.phonebook.receiver.PhoneReceiver"
             android:enabled="true"
@@ -91,12 +90,10 @@
             android:name="com.ev.dialer.telecom.InCallServiceImpl"
             android:exported="true"
             android:permission="android.permission.BIND_INCALL_SERVICE">
-            <intent-filter>
-                <action android:name="android.telecom.InCallService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.telecom.IN_CALL_SERVICE_RINGING"
-                android:value="true" />
+            <!--  <meta-data
+                  android:name="android.telecom.INCLUDE_SELF_MANAGED_CALLS"
+                  android:value="true" />-->
+
             <meta-data
                 android:name="android.telecom.INCLUDE_EXTERNAL_CALLS"
                 android:value="true" />
@@ -108,7 +105,13 @@
                 android:name="android.telecom.IN_CALL_SERVICE_CAR_MODE_UI"
                 android:value="true" />
 
+            <meta-data
+                android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                android:value="true" />
 
+            <intent-filter>
+                <action android:name="android.telecom.InCallService" />
+            </intent-filter>
             <!-- <intent-filter>
                  <action android:name="android.telecom.InCallService" />
              </intent-filter>
@@ -133,6 +136,7 @@
             android:exported="true" />
     </application>
 
+    <uses-permission android:name="android.permission.MANAGE_ONGOING_CALLS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" /><!--浮动视窗-->
     <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -157,18 +161,18 @@
     <uses-permission android:name="android.permission.MODIFY_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.USE_CREDENTIALS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
-  <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="com.android.voicemail.permission.ADD_VOICEMAIL" />
     <uses-permission android:name="com.android.voicemail.permission.WRITE_VOICEMAIL" />
     <uses-permission android:name="com.android.voicemail.permission.READ_VOICEMAIL" />
     <uses-permission android:name="android.permission.ALLOW_ANY_CODEC_FOR_PLAYBACK" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-  <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

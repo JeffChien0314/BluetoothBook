@@ -37,6 +37,7 @@ import android.telecom.PhoneAccount;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -293,6 +294,7 @@ public class UiCallManager {
      * @return {@code true} if a call is successfully placed, false if number is invalid.
      */
     public boolean placeCall(String number) {
+        Log.i(TAG, "placeCall: ");
         if (isValidNumber(number)) {
             Uri uri = Uri.fromParts("tel", number, null);
             L.d(TAG, "android.telecom.TelecomManager#placeCall: %s", number);

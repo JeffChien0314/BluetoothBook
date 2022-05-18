@@ -1,35 +1,36 @@
 package com.ev.dialer.phonebook.ui.calllog;
 
-import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.ev.dialer.Constants;
 import com.ev.dialer.phonebook.R;
-import com.ev.dialer.phonebook.ui.PhoneBookActivity;
-import com.ev.dialer.phonebook.ui.common.BaseFragment;
+import com.ev.dialer.phonebook.ui.common.BaseLoadingFragment;
+import com.ev.dialer.phonebook.ui.common.LoadingCallback;
 import com.ev.dialer.phonebook.ui.common.entity.UiCallLog;
 import com.ev.dialer.telecom.UiCallManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class RecentListFragment extends BaseFragment {
+public class RecentListFragment extends BaseLoadingFragment {
     private static final String TAG = RecentListFragment.class.getSimpleName();
     private View view;
     private RecyclerView recentListView;
     private RecentsAdapter adapter;
 
-    public static RecentListFragment newInstance() {
-        RecentListFragment recentListFragment = new RecentListFragment();
+    public RecentListFragment(LoadingCallback callback) {
+        super(callback);
+    }
+
+    public static RecentListFragment newInstance(LoadingCallback callback) {
+        RecentListFragment recentListFragment = new RecentListFragment(callback);
         return recentListFragment;
     }
 
@@ -53,32 +54,21 @@ public class RecentListFragment extends BaseFragment {
         if (!Constants.IS_DEBUG) {
             CallHistoryViewModel viewModel = ViewModelProviders.of(this).get(
                     CallHistoryViewModel.class);
-            /*  viewModel.getCallHistory().observe(getActivity(), adapter::setUiCallLogs);*/
-
             viewModel.getCallHistory().observe(getActivity(), uiCallLogs -> {
                 if (uiCallLogs.isLoading()) {
                     Log.i(TAG, "initData: 1");
                     showLoading();
-                    // ((PhoneBookActivity) getActivity()).getmTabCategoryView().sendMessage(MESSAGE_SHOWDIALOG);
                 } else if (uiCallLogs.getData().isEmpty()) {
                     Log.i(TAG, "initData: 2");
                     hideLoading();
-                    //  Toast.makeText(getActivity(), "get Empty info", Toast.LENGTH_SHORT).show();
-
-                   /*   ((PhoneBookActivity) getActivity()).getmTabCategoryView().sendMessage(MESSAGE_HIDEDIALOG);
-                       showEmpty(Constants.INVALID_RES_ID, R.string.call_logs_empty,
-                            R.string.available_after_sync);*/
                 } else {
                     Log.i(TAG, "initData: 3");
                     hideLoading();
                     adapter.setUiCallLogs(uiCallLogs.getData());
-                    //   showContent();
-                    //  ((PhoneBookActivity) getActivity()).getmTabCategoryView().sendMessage(MESSAGE_HIDEDIALOG);
                 }
             });
         }
     }
-
 
     private void addListener() {
         adapter.setOnRecentItemClickListener(new RecentsAdapter.OnRecentItemClickListener() {

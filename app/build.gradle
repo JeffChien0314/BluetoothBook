@@ -17,7 +17,7 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId "com.ev.dialer"
+        applicationId "com.ev.dialer.phonebook"
         minSdkVersion 26
         targetSdkVersion 29
         versionCode 1

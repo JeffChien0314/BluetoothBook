@@ -34,14 +34,10 @@ public class PhoneBookActivity extends AppCompatActivity {
         requestAllpower();
         setRoleHolderAsUser(this);
         setContentView(R.layout.activity_phone_book);
-
         mTabCategoryView = new TabCategoryView(this);
         mTabCategoryView.registerReceiver();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-    }
 
-    public TabCategoryView getmTabCategoryView() {
-        return mTabCategoryView;
     }
 
     @Override
@@ -65,7 +61,7 @@ public class PhoneBookActivity extends AppCompatActivity {
             return;
         }
         String number;
-        switch (action){
+        switch (action) {
             case Intent.ACTION_DIAL:
                 number = PhoneNumberUtils.getNumberFromIntent(intent, this);
                 /*if (TelecomActivityViewModel.DialerAppState.BLUETOOTH_ERROR
@@ -77,10 +73,8 @@ public class PhoneBookActivity extends AppCompatActivity {
                 number = PhoneNumberUtils.getNumberFromIntent(intent, this);
                 UiCallManager.get().placeCall(number);
                 break;
-
             default:
                 break;
-
         }
         setIntent(null);
 
@@ -96,7 +90,6 @@ public class PhoneBookActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_CALL_LOG)
                 != PackageManager.PERMISSION_GRANTED) {
-            Log.i("TAG", "requestAllpower: ");
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_PHONE_STATE
                             , Manifest.permission.READ_CONTACTS
@@ -108,22 +101,26 @@ public class PhoneBookActivity extends AppCompatActivity {
                             , Manifest.permission.PROCESS_OUTGOING_CALLS}, 1);
         }
         if (Build.VERSION.SDK_INT >= 23) {
-            if(!Settings.canDrawOverlays(this)) {
-                Log.d(TAG,"! canDrawOverlays");
+            if (!Settings.canDrawOverlays(this)) {
+                Log.d(TAG, "ask alert window permission");
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
                 startActivity(intent);
                 return;
-            }else {
-                Log.d(TAG,"canDrawOverlays");
+            } else {
+                Log.d(TAG, "alertwindow permitted");
             }
         }
     }
 
     public void setRoleHolderAsUser(Context context) {
         if (!isDefaultPhoneCallApp(context)) {
-            RoleManager roleManager = context.getSystemService(RoleManager.class);
-            Intent roleRequestIntent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
-            startActivityForResult(roleRequestIntent, REQUEST_ID);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                RoleManager roleManager = context.getSystemService(RoleManager.class);
+                Intent roleRequestIntent = null;
+                roleRequestIntent = roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER);
+                startActivityForResult(roleRequestIntent, REQUEST_ID);
+            }
+
         }
         Log.i("PhoneBookActivity", "onCreate: isDefaultPhoneCallApp=" + isDefaultPhoneCallApp(this));
 
@@ -132,8 +129,6 @@ public class PhoneBookActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.i(TAG, "onActivityResult: resultCode=" + resultCode);
-        Log.i(TAG, "onActivityResult: requestCode=" + requestCode);
         if (requestCode == REQUEST_ID) {
 
             if (resultCode == Activity.RESULT_OK) {
@@ -152,8 +147,8 @@ public class PhoneBookActivity extends AppCompatActivity {
             if (manger != null) {
                 String name = manger.getDefaultDialerPackage();
                 try {
-                return name.equals(context.getPackageName());
-                }catch (Exception e){
+                    return name.equals(context.getPackageName());
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
 
@@ -161,5 +156,4 @@ public class PhoneBookActivity extends AppCompatActivity {
         }
         return false;
     }
-
 }

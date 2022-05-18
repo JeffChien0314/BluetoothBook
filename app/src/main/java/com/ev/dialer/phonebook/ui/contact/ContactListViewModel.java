@@ -28,7 +28,6 @@ import com.ev.dialer.phonebook.common.InMemoryPhoneBook;
 import com.ev.dialer.widget.WorkerExecutor;
 
 import androidx.annotation.NonNull;
-import androidx.core.util.Pair;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;

@@ -20,6 +20,7 @@ import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.service.BluetoothContactsService;
 import com.ev.dialer.phonebook.service.BluetoothRecentsService;
 import com.ev.dialer.phonebook.ui.calllog.RecentListFragment;
+import com.ev.dialer.phonebook.ui.common.LoadingCallback;
 import com.ev.dialer.phonebook.ui.contact.ContactListFragment;
 import com.ev.dialer.phonebook.ui.dialpad.DialpadFragment;
 import com.ev.dialer.phonebook.utils.LogUtils;
@@ -36,7 +37,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import static android.security.KeyStore.getApplicationContext;
 
-public class TabCategoryView implements View.OnClickListener, View.OnFocusChangeListener {
+public class TabCategoryView implements View.OnClickListener, View.OnFocusChangeListener, LoadingCallback {
     private static final String TAG = TabCategoryView.class.getSimpleName();
     private AppCompatActivity mActivity;
     private Button mRecents, mContacts, mMessages, mKeypad;
@@ -46,28 +47,29 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     private static final String fragmentTag = "FragmentTag";
     private Dialog dialog;
     //  private HashMap<String, List<VCardEntry>> listHashMap = new HashMap<>();
-    public static final int MESSAGE_SHOWDIALOG = 0;
+   /* public static final int MESSAGE_SHOWDIALOG = 0;
     public static final int MESSAGE_HIDEDIALOG = 1;
-
+*/
     public final int MESSAGE_SHOWRECENTLIST = 2;
     public final int MESSAGE_SHOWCONTACTLIST = 3;
     public static final int MESSAGE_HIDE_FRAGMENT = 4;
     public final int MESSAGE_SYNC_TIMEOUT = 5 * 1000;
-
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-                case MESSAGE_SHOWDIALOG:
-                    removeMessages(MESSAGE_HIDEDIALOG);
-                  //  sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, MESSAGE_SYNC_TIMEOUT);
+               /* case MESSAGE_SHOWDIALOG:
+                    // removeMessages(MESSAGE_HIDEDIALOG);
+                    showProcessDialog();
+                    //   sendEmptyMessageDelayed(MESSAGE_HIDEDIALOG, MESSAGE_SYNC_TIMEOUT);
                     break;
                 case MESSAGE_HIDEDIALOG:
+                    //  removeMessages(MESSAGE_SHOWDIALOG);
                     hideProcessDialog();
-                    break;
+                    break;*/
                 case MESSAGE_SHOWRECENTLIST:
-                   // showProcessDialog();
+                    // showProcessDialog();
                     showRecentsList();
                     break;
                 case MESSAGE_SHOWCONTACTLIST:
@@ -121,12 +123,6 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
     public static final long WEEK_IN_MILLIS = DAY_IN_MILLIS * 7;
 
     public TabCategoryView(AppCompatActivity mActivity) {
-     /*   Log.i(TAG, "TabCategoryView: getRelativeTime(1650628074000L)=" + getRelativeTime(1650507974000L));
-        Log.i(TAG, "TabCategoryView: getString2Date=" + EVDateUtils.getInstance(mActivity).getDate2String(1650507974000L, "yyyy/MM/dd HH:mm:ss"));
-        Log.i(TAG, "TabCategoryView: DateUtils.isToday(1650507974000L)=" + DateUtils.isToday(1650690027767L));
-        Log.i(TAG, "TabCategoryView:  EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(System.currentTimeMillis()))" +  EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(1650628084000L-WEEK_IN_MILLIS)));
-       // EVDateUtils.getInstance(mActivity).dateCompareTo(new Date(System.currentTimeMillis()));
-*/
         this.mActivity = mActivity;
         initLeftView();
         requestRecentsData();
@@ -146,6 +142,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         setDrawables(mContacts, R.drawable.selector_icon_tab_contacts_btn);
         setDrawables(mKeypad, R.drawable.selector_icon_tab_keypad_btn);
         setDrawables(mMessages, R.drawable.selector_icon_tab_messages_btn);
+//        mActivity.findViewById(R.id.loading_layout).bringToFront();
     }
 
     private void setDrawables(Button button, int drawableID) {
@@ -172,7 +169,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
 
     private void requestRecentsData() {
         if (Constants.IS_DEBUG) return;
-      //  mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
+        //  mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
         sendMessage(MESSAGE_SHOWRECENTLIST);
         //  getDataList();
         /*Intent serviceIntent = new Intent(mActivity, BluetoothRecentsService.class);
@@ -185,29 +182,6 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
                 if (mRecentsService.connectPbapClient()) {
                     mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
                 }
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-                mRecentsService = null;
-            }
-        };
-        mActivity.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);*/
-    }
-
-    private void requestContactsData() {
-        if (Constants.IS_DEBUG) return;
-        mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
-        /*Intent serviceIntent = new Intent(mActivity, BluetoothContactsService.class);
-        ServiceConnection connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                LogUtils.d(TAG, "BluetoothContactsService, init the Service");
-                mContactsService = ((BluetoothContactsService.BluetoothServiceBinder) service).getService();
-                if (mContactsService.connectPbapClient()) {
-                    mHandler.sendEmptyMessage(MESSAGE_SHOWDIALOG);
-                }
-
             }
 
             @Override
@@ -287,7 +261,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
             case R.id.contacts:
                 clearSelectedView();
                 mContacts.setSelected(true);
-            //    hideFragment();
+                //    hideFragment();
                 sendMessage(MESSAGE_HIDE_FRAGMENT);
                 sendMessage(MESSAGE_SHOWCONTACTLIST);
                 /*  showContactsList();
@@ -355,7 +329,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         FragmentManager fManager = mActivity.getSupportFragmentManager();
         FragmentTransaction fTransaction = fManager.beginTransaction();
         Fragment fragment = fManager.findFragmentByTag(fragmentTag);
-        RecentListFragment recentListFragment = RecentListFragment.newInstance();
+        RecentListFragment recentListFragment = RecentListFragment.newInstance(this);
         if (fragment == null) {
             fTransaction.add(R.id.content_layout, recentListFragment, fragmentTag);
         } else {
@@ -368,7 +342,7 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         FragmentManager fManager = mActivity.getSupportFragmentManager();
         FragmentTransaction fTransaction = fManager.beginTransaction();
         Fragment fragment = fManager.findFragmentByTag(fragmentTag);
-        ContactListFragment contactListFragment = ContactListFragment.newInstance();
+        ContactListFragment contactListFragment = ContactListFragment.newInstance(this);
         if (fragment == null) {
             fTransaction.add(R.id.content_layout, contactListFragment, fragmentTag);
         } else {
@@ -404,30 +378,14 @@ public class TabCategoryView implements View.OnClickListener, View.OnFocusChange
         }
     }
 
-    //show the progress dialog
-    public void showProcessDialog() {
-        mHandler.removeMessages(MESSAGE_HIDEDIALOG);
-        if (dialog == null || !dialog.isShowing()) {
-            dialog = new Dialog(mActivity, R.style.TransparentDialog);
-            dialog.setContentView(R.layout.layout_data_loading_dialog);
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(false);
 
-            if (mActivity != null && !mActivity.isFinishing()) {
-                if (!dialog.isShowing()) {
-                    dialog.show();
-                }
-            }
-        }
+    @Override
+    public void showloading() {
+        mActivity.findViewById(R.id.loading_layout).setVisibility(View.VISIBLE);
     }
 
-    //hide the progress dialog
-    public void hideProcessDialog() {
-        if (mActivity != null && !mActivity.isFinishing()) {
-            if (dialog != null && dialog.isShowing()) {
-                dialog.dismiss();
-                dialog = null;
-            }
-        }
+    @Override
+    public void hideloading() {
+        mActivity.findViewById(R.id.loading_layout).setVisibility(View.GONE);
     }
 }
