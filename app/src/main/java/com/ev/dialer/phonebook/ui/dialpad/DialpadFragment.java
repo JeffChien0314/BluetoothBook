@@ -35,6 +35,7 @@ import com.ev.dialer.phonebook.ui.common.KeypadView;
 import com.ev.dialer.phonebook.ui.common.SpaceItemDecoration;
 import com.ev.dialer.phonebook.ui.contact.ContactListViewModel;
 import com.ev.dialer.phonebook.utils.TelecomUtils;
+import com.ev.dialer.phonebook.utils.ToneUtil;
 import com.ev.dialer.phonebook.utils.ViewUtils;
 import com.ev.dialer.telecom.UiCallManager;
 import com.google.common.collect.ImmutableMap;
@@ -247,12 +248,14 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
 
     @Override
     void playTone(int keycode) {
-        mToneGenerator.startTone(mToneMap.get(keycode), TONE_LENGTH_INFINITE);
+      //  mToneGenerator.startTone(mToneMap.get(keycode), TONE_LENGTH_INFINITE);
+        ToneUtil.getInstance().playTone(keycode);
     }
 
     @Override
     void stopAllTones() {
-        mToneGenerator.stopTone();
+     //   mToneGenerator.stopTone();
+        ToneUtil.getInstance().stopAllTones();
     }
 
     @Override

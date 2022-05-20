@@ -1,6 +1,8 @@
 package com.ev.dialer.phonebook.ui.common;
 
 import android.content.Context;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -8,12 +10,14 @@ import android.view.View;
 
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.ui.dialpad.KeypadFragment;
+import com.google.common.collect.ImmutableMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 public class KeypadView  extends ConstraintLayout {
@@ -35,7 +39,9 @@ public class KeypadView  extends ConstraintLayout {
         sRIdMap.put(KeyEvent.KEYCODE_POUND, R.id.pound);
     }
 
-    /** Valid keycodes that can be sent to the callback. **/
+    /**
+     * Valid keycodes that can be sent to the callback.
+     **/
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({KeyEvent.KEYCODE_0, KeyEvent.KEYCODE_1, KeyEvent.KEYCODE_2, KeyEvent.KEYCODE_3,
             KeyEvent.KEYCODE_4, KeyEvent.KEYCODE_5, KeyEvent.KEYCODE_6, KeyEvent.KEYCODE_7,
@@ -44,16 +50,24 @@ public class KeypadView  extends ConstraintLayout {
     public @interface DialKeyCode {
     }
 
-    /** Callback for keypad to interact with its host. */
+    /**
+     * Callback for keypad to interact with its host.
+     */
     public interface KeypadCallback {
 
-        /** Called when a key is long pressed. */
+        /**
+         * Called when a key is long pressed.
+         */
         void onKeypadKeyLongPressed(@DialKeyCode int keycode);
 
-        /** Called when a key is pressed down. */
+        /**
+         * Called when a key is pressed down.
+         */
         void onKeypadKeyDown(@DialKeyCode int keycode);
 
-        /** Called when a key is released. */
+        /**
+         * Called when a key is released.
+         */
         void onKeypadKeyUp(@DialKeyCode int keycode);
     }
 
@@ -70,10 +84,11 @@ public class KeypadView  extends ConstraintLayout {
     }
 
     private void initView(Context context) {
-        keypadView= inflate(context,R.layout.keypad,this);
+        keypadView = inflate(context, R.layout.keypad, this);
         setupKeypadClickListeners(keypadView);
 
     }
+
     /**
      * The click listener for all keypad buttons.  Reacts to touch-down and touch-up events, as
      * well as long-press for certain keys.  Mimics the behavior of the phone dialer app.

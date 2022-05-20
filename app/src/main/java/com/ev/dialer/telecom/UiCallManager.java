@@ -125,9 +125,9 @@ public class UiCallManager {
         mPhoneAccountHandle = new PhoneAccountHandle(
                 new ComponentName(context, MyConnectionService.class),
                 context.getPackageName());
-       /* PhoneAccount phoneAccount = PhoneAccount.builder(mPhoneAccountHandle, context.getPackageName()).setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED).build();
+        PhoneAccount phoneAccount = PhoneAccount.builder(mPhoneAccountHandle, context.getPackageName()).setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED).build();
         mTelecomManager.registerPhoneAccount(phoneAccount);
-*/
+
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter != null) {
             adapter.getProfileProxy(mContext, new BluetoothProfile.ServiceListener() {
@@ -311,7 +311,7 @@ public class UiCallManager {
             ITelephony telephony = ITelephony.Stub.asInterface(
                     ServiceManager.getService(Context.TELEPHONY_SERVICE));
             if (telephony != null) {
-                Bundle bundle=new Bundle();
+                Bundle bundle = new Bundle();
        //         bundle.putParcelable(TelecomManager.EXTRA_OUTGOING_CALL_EXTRAS, uri);
                 bundle.putParcelable(TelecomManager.EXTRA_PHONE_ACCOUNT_HANDLE,
                         mPhoneAccountHandle);

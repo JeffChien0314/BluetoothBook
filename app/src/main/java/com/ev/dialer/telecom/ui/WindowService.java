@@ -17,8 +17,6 @@ import android.os.Process;
 import android.provider.Settings;
 import android.telecom.Call;
 import android.telephony.TelephonyManager;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
@@ -37,6 +35,7 @@ import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.PhoneCallManager;
 import com.ev.dialer.phonebook.ui.common.KeypadView;
+import com.ev.dialer.phonebook.utils.ToneUtil;
 import com.ev.dialer.telecom.InCallServiceImpl;
 
 import androidx.annotation.NonNull;
@@ -45,7 +44,7 @@ import androidx.annotation.Nullable;
 import static com.ev.dialer.telecom.Constants.Action.CALL_END_ACTION;
 import static com.ev.dialer.telecom.Constants.Action.CALL_STATE_CHANGE_ACTION;
 
-public class WindowService extends Service implements View.OnClickListener,KeypadView.KeypadCallback {
+public class WindowService extends Service implements View.OnClickListener, KeypadView.KeypadCallback {
     private final static String TAG = "WindowService";
     private WindowManager mWindowManager = null;
     private WindowManager.LayoutParams mParams;
@@ -68,7 +67,7 @@ public class WindowService extends Service implements View.OnClickListener,Keypa
 
     private boolean mDTMFToneEnabled;
     private static final int PLAY_DTMF_TONE = 1;
-    private int mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
+  //  private int mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
     private final StringBuffer mNumber = new StringBuffer();
     private ValueAnimator mInputMotionAnimator;
 
@@ -139,8 +138,8 @@ public class WindowService extends Service implements View.OnClickListener,Keypa
         screenHeight = size.y;
         Log.d(TAG, "width:" + screenWidth + ", height:" + screenHeight);
         mView = LayoutInflater.from(this).inflate(R.layout.popup_layout, null, false);
-        mNumberView=new KeypadView(this);
-       ((FrameLayout)mView.findViewById(R.id.number_layout)).addView(mNumberView);
+        mNumberView = new KeypadView(this);
+        ((FrameLayout) mView.findViewById(R.id.number_layout)).addView(mNumberView);
         mNumberView.setKeypadCallback(this);
         mParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -250,6 +249,7 @@ public class WindowService extends Service implements View.OnClickListener,Keypa
     public void onDestroy() {
         hide();
         unregisterReceiver(myReciver);
+        ToneUtil.getInstance().stopAllTones();
         super.onDestroy();
     }
 
@@ -295,22 +295,23 @@ public class WindowService extends Service implements View.OnClickListener,Keypa
                 break;
         }*/
     }
-@Override
+
+    @Override
     public void onKeypadKeyDown(int keycode) {
         String digit = sDialValueMap.get(keycode).toString();
         appendDialedNumber(digit);
 
         if (mDTMFToneEnabled) {
-            mCurrentlyPlayingTone = keycode;
-         //   playTone(keycode);
+          //  mCurrentlyPlayingTone = keycode;
+            ToneUtil.getInstance().playTone(keycode);
         }
     }
 
     @Override
     public void onKeypadKeyUp(int keycode) {
-        if (mDTMFToneEnabled && keycode == mCurrentlyPlayingTone) {
-            mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
-          //  stopAllTones();
+        if (mDTMFToneEnabled && keycode == ToneUtil.getInstance().getCurrentKeyCode()) {
+           // mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
+            ToneUtil.getInstance().stopAllTones();
         }
     }
 
@@ -340,7 +341,7 @@ public class WindowService extends Service implements View.OnClickListener,Keypa
         }*/
     }
 
-    void presentDialedNumber(@NonNull StringBuffer number){
+    void presentDialedNumber(@NonNull StringBuffer number) {
         mInputNumber.setText(number);
     }
 

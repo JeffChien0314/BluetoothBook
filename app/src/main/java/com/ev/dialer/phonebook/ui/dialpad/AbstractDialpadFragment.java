@@ -36,8 +36,11 @@ import androidx.fragment.app.Fragment;
 import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.ui.common.KeypadView;
+import com.ev.dialer.phonebook.utils.ToneUtil;
 
-/** Fragment that controls the dialpad. */
+/**
+ * Fragment that controls the dialpad.
+ */
 public abstract class AbstractDialpadFragment extends Fragment implements
         KeypadView.KeypadCallback {
     private static final String TAG = "AbsDialpadFragment";
@@ -68,13 +71,19 @@ public abstract class AbstractDialpadFragment extends Fragment implements
     private TextView dialNumber;
     private int mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
 
-    /** Defines how the dialed number should be presented. */
+    /**
+     * Defines how the dialed number should be presented.
+     */
     abstract void presentDialedNumber(@NonNull StringBuffer number);
 
-    /** Plays the tone for the pressed keycode when "play DTMF tone" is enabled in settings. */
+    /**
+     * Plays the tone for the pressed keycode when "play DTMF tone" is enabled in settings.
+     */
     abstract void playTone(int keycode);
 
-    /** Stops playing all tones when "play DTMF tone" is enabled in settings. */
+    /**
+     * Stops playing all tones when "play DTMF tone" is enabled in settings.
+     */
     abstract void stopAllTones();
 
     @Override
@@ -127,20 +136,22 @@ public abstract class AbstractDialpadFragment extends Fragment implements
         appendDialedNumber(digit);
 
         if (mDTMFToneEnabled) {
-            mCurrentlyPlayingTone = keycode;
+            //  mCurrentlyPlayingTone = keycode;
             playTone(keycode);
         }
     }
 
     @Override
     public void onKeypadKeyUp(@KeypadView.DialKeyCode int keycode) {
-        if (mDTMFToneEnabled && keycode == mCurrentlyPlayingTone) {
-            mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
+        if (mDTMFToneEnabled && keycode == /*mCurrentlyPlayingTone*/ToneUtil.getInstance().getCurrentKeyCode()) {
+            //   mCurrentlyPlayingTone = KeyEvent.KEYCODE_UNKNOWN;
             stopAllTones();
         }
     }
 
-    /** Set the dialed number to the given number. Must be called after the fragment is added. */
+    /**
+     * Set the dialed number to the given number. Must be called after the fragment is added.
+     */
     public void setDialedNumber(String number) {
         mNumber.setLength(0);
         if (!TextUtils.isEmpty(number)) {
