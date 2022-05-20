@@ -1,6 +1,7 @@
 package com.ev.dialer;
 
 import android.app.Application;
+import android.content.Intent;
 
 import com.ev.dialer.btManager.BtManager;
 import com.ev.dialer.notification.InCallNotificationController;
@@ -18,6 +19,7 @@ public class BTBookApplication extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+		startService(new Intent(this, BTBookService.class)); //启动BTBookService
         BtManager.getInstance(this);
         InMemoryPhoneBook.init(this);
         UiCallManager.init(this);

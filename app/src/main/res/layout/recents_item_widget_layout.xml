@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/recent_item_layout"
+    android:layout_width="534px"
+    android:layout_height="90px">
+
+    <ImageView
+        android:id="@+id/recent_call"
+        android:layout_width="30px"
+        android:layout_height="30px"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="24px"
+        android:background="@drawable/icon_call_in" />
+
+    <ImageView
+        android:id="@+id/recent_photo"
+        android:layout_width="60px"
+        android:layout_height="60px"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="24px"
+        android:layout_toRightOf="@+id/recent_call"
+        android:background="@drawable/icon_avatar_default" />
+
+    <LinearLayout
+        android:id="@+id/recent_name_category"
+        android:layout_width="210px"
+        android:layout_height="66px"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="30px"
+        android:layout_toRightOf="@+id/recent_photo"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/recent_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="28px" />
+
+        <TextView
+            android:id="@+id/recent_call_category"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6px"
+            android:text="Mobile"
+            android:textColor="@color/color_3B79C3"
+            android:textSize="22px" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/recent_call_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/recent_name_category"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="24px"
+        android:text="Yesterday"
+        android:textColor="@color/color_80FFFFFF"
+        android:textSize="22px" />
+
+    <ImageView
+        android:id="@+id/recent_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2px"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="78px"
+        android:layout_marginRight="24px"
+        android:background="@color/color_1AFFFFFF"
+        android:visibility="visible" />
+
+</RelativeLayout>

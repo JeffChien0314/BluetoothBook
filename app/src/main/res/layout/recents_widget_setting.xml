@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:initialLayout="@layout/layout_recents_widget"
+    android:minHeight="342px"
+    android:minWidth="534px"
+    android:previewImage="@drawable/icon_avatar_default"
+    android:updatePeriodMillis="20000"
+    android:widgetCategory="home_screen">
+
+</appwidget-provider>
