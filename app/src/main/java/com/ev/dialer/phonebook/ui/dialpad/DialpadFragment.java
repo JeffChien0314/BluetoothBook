@@ -161,8 +161,10 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
             @Override
             public void onClick(View v) {
                 ViewUtils.setVisible(callingLayout, false);
-                dialNumber.setGravity(Gravity.CENTER);
-                dialNumber.setText("");
+                ViewUtils.setVisible(callButton, true);
+                ViewUtils.setVisible(deleteButton, true);
+                //dialNumber.setGravity(Gravity.CENTER);
+                //dialNumber.setText("");
             }
         });
 
@@ -280,6 +282,8 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
             ViewUtils.setVisible(deleteButton, true);
             if (View.VISIBLE != callingLayout.getVisibility()) {
                 ViewUtils.setVisible(mRecyclerView, true);
+            }else{
+                ViewUtils.setVisible(deleteButton, false);
             }
 
             mSearchContactList.clear();
@@ -317,10 +321,11 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
         ViewUtils.setVisible(callingLayout, true);
         ViewUtils.setVisible(mRecyclerView, false);
         ViewUtils.setVisible(deleteButton, false);
+        ViewUtils.setVisible(callButton, false);
         dialMember.setText(number);
         dialNumber.setGravity(Gravity.CENTER);
-        dialNumber.setText("");
-        DialpadFragment.this.getNumber().setLength(0);
+        //dialNumber.setText("");
+        //DialpadFragment.this.getNumber().setLength(0);
     }
 
 }
