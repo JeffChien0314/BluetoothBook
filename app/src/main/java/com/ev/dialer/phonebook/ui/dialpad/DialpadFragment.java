@@ -1,5 +1,12 @@
 package com.ev.dialer.phonebook.ui.dialpad;
 
+import static com.ev.dialer.telecom.Constants.Action.CALL_END_ACTION;
+import static com.ev.dialer.telecom.Constants.Action.CALL_STATE_CHANGE_ACTION;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.os.Bundle;
@@ -13,7 +20,12 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
+import android.os.Message;
+import android.telecom.Call;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -30,6 +42,7 @@ import com.ev.dialer.log.L;
 import com.ev.dialer.phonebook.R;
 import com.ev.dialer.phonebook.common.Contact;
 import com.ev.dialer.phonebook.common.I18nPhoneNumberWrapper;
+import com.ev.dialer.phonebook.common.PhoneCallManager;
 import com.ev.dialer.phonebook.common.PhoneNumber;
 import com.ev.dialer.phonebook.ui.common.KeypadView;
 import com.ev.dialer.phonebook.ui.common.SpaceItemDecoration;
@@ -37,7 +50,9 @@ import com.ev.dialer.phonebook.ui.contact.ContactListViewModel;
 import com.ev.dialer.phonebook.utils.TelecomUtils;
 import com.ev.dialer.phonebook.utils.ToneUtil;
 import com.ev.dialer.phonebook.utils.ViewUtils;
+import com.ev.dialer.telecom.InCallServiceImpl;
 import com.ev.dialer.telecom.UiCallManager;
+import com.ev.dialer.telecom.ui.WindowService;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.ArrayList;
@@ -52,6 +67,11 @@ import java.util.List;
 public class DialpadFragment extends AbstractDialpadFragment implements DialpadContactsAdapter.OnContactItemClickListener {
 
     private static final String TAG = "DialpadFragment";
+    private PhoneCallManager mPhoneCallManager;
+    private final int MSG_ANSWER_CALL = 0;
+    private final int MSG_UPDATE_DURATION = 1;
+    private int mCallingDuration = 0;
+    private static final int CALLING_TIMER_INTERVAL = 1000;
 
     @VisibleForTesting
     static final int MAX_DIAL_NUMBER = 20;
@@ -90,6 +110,46 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
     private List<Contact> mSearchContactList = new ArrayList<>();
     private List<Contact> mTempSearchContactList = new ArrayList<>();
 
+    private BroadcastReceiver myReciver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case CALL_END_ACTION:
+                    endCalling();
+                    break;
+                case TelephonyManager.ACTION_PHONE_STATE_CHANGED:
+
+                    break;
+                case CALL_STATE_CHANGE_ACTION:
+                    int state = intent.getIntExtra("state", -1);
+                    if (PhoneCallManager.getCallType() == InCallServiceImpl.CallType.CALL_OUT &&
+                            state == Call.STATE_ACTIVE) {
+                        mHandler.sendEmptyMessage(MSG_ANSWER_CALL);
+                    }
+                    break;
+
+            }
+
+        }
+    };
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case MSG_ANSWER_CALL:
+                    mPhoneCallManager.answer();
+                    setDuration(-1);
+                    break;
+                case MSG_UPDATE_DURATION:
+                    setDuration(mCallingDuration);
+                    break;
+                // case
+            }
+        }
+    };
+
     public DialpadFragment() {
         // Required empty public constructor
     }
@@ -106,6 +166,8 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
         mToneGenerator = new ToneGenerator(AudioManager.STREAM_MUSIC, TONE_RELATIVE_VOLUME);
         dialpadContactsAdapter = new DialpadContactsAdapter(getContext());
         dialpadContactsAdapter.setOnContactItemClickListener(this);
+        mPhoneCallManager = new PhoneCallManager(getContext());
+        registerReceiver();
     }
 
     @Override
@@ -122,6 +184,7 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(DialpadFragment.this.getNumber().toString())) {
                     startDialNumber(DialpadFragment.this.getNumber().toString());
+                    ViewUtils.setText(callingStatus,getContext().getResources().getString(R.string.calling));
                 } /*else {
                     DialpadFragment.this.setDialedNumber(CallLog.Calls.getLastOutgoingCall(DialpadFragment.this.getContext()));
                 }*/
@@ -160,11 +223,7 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
         declineButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ViewUtils.setVisible(callingLayout, false);
-                ViewUtils.setVisible(callButton, true);
-                ViewUtils.setVisible(deleteButton, true);
-                //dialNumber.setGravity(Gravity.CENTER);
-                //dialNumber.setText("");
+                endCalling();
             }
         });
 
@@ -317,6 +376,7 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
     }
 
     private void startDialNumber(String number) {
+        mPhoneCallManager.openSpeaker();
         UiCallManager.get().placeCall(number);
         ViewUtils.setVisible(callingLayout, true);
         ViewUtils.setVisible(mRecyclerView, false);
@@ -328,4 +388,43 @@ public class DialpadFragment extends AbstractDialpadFragment implements DialpadC
         //DialpadFragment.this.getNumber().setLength(0);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPhoneCallManager.destroy();
+        getContext().unregisterReceiver(myReciver);
+    }
+
+    private void endCalling(){
+        ViewUtils.setVisible(callingLayout, false);
+        ViewUtils.setVisible(callButton, true);
+        ViewUtils.setVisible(deleteButton, true);
+        mPhoneCallManager.disconnect();
+        mHandler.removeMessages(MSG_UPDATE_DURATION);
+        mCallingDuration = 0;
+        //dialNumber.setGravity(Gravity.CENTER);
+        //dialNumber.setText("");
+    }
+
+    private void setDuration(int duration) {
+        mCallingDuration = duration;
+        mCallingDuration++;
+        int sec = mCallingDuration % 60;
+        int minutes = mCallingDuration / 60;
+        int min = minutes % 60;
+        int hour = minutes / 60;
+        String text = (hour > 0 ? ((hour < 10 ? ("0" + hour) : hour)) + ":" : "")
+                + (min < 10 ? ("0" + min) : min) + ":"
+                + (sec < 10 ? ("0" + sec) : sec);
+        callingStatus.setText(text);
+        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_DURATION, CALLING_TIMER_INTERVAL);
+    }
+
+    private void registerReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CALL_END_ACTION);
+        filter.addAction(CALL_STATE_CHANGE_ACTION);
+        filter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED);
+        getContext().registerReceiver(myReciver, filter);
+    }
 }

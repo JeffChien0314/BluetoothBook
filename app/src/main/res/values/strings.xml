@@ -137,6 +137,8 @@
     <!-- Title of family name [CHAR LIMIT=40]-->
     <string name="family_name_first_title">Last name</string>
 
+    <string name="calling">Calling...</string>
+
     
 <!-- Key of given name -->
     <string name="given_name_first_key" translatable="false">given_name</string>

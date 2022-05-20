@@ -58,7 +58,7 @@
                 android:layout_alignBaseline="@id/calling_type"
                 android:layout_marginLeft="15px"
                 android:layout_toRightOf="@id/calling_type"
-                android:text="Calling..."
+                android:text="@string/calling"
                 android:textColor="@color/color_80FFFFFF"
                 android:textSize="38px" />
 
