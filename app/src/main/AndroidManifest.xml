@@ -134,6 +134,26 @@
             android:name="com.ev.dialer.phonebook.service.BluetoothMapService"
             android:enabled="true"
             android:exported="true" />
+			
+		<service
+            android:name="com.ev.dialer.BTBookService"
+            android:launchMode="singleInstance">
+            <intent-filter>
+                <action android:name="com.ev.dialer.BTBookService" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name="com.ev.dialer.phonebook.ui.RecentsWidget"
+            android:label="Recents">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@layout/recents_widget_setting" />
+        </receiver>
+		
     </application>
 
     <uses-permission android:name="android.permission.MANAGE_ONGOING_CALLS" />
